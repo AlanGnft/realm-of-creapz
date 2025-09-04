@@ -284,7 +284,7 @@
     width: 2800px; /* 7 cards * 400px each (includes duplicates) */
     height: 100%;
     transition: transform 0.5s ease;
-    transform: translateX(-1200px); /* Start with first card centered */
+    transform: translateX(-1000px); /* Adjusted to properly center */
 }
 
 .character-card {
@@ -1788,7 +1788,10 @@ function initializeCarousel() {
 function updateCarousel() {
     const track = document.getElementById('carousel-track');
     const cardWidth = 400;
-    const offset = -currentCharacterIndex * cardWidth;
+    const containerWidth = 600;
+    const centerOffset = (containerWidth - 280) / 2; // Center the 280px card in 600px container
+    const baseOffset = -1000; // Starting position
+    const offset = baseOffset - (currentCharacterIndex - 3) * cardWidth;
     
     track.style.transform = `translateX(${offset}px)`;
     
@@ -1806,12 +1809,11 @@ function updateCarousel() {
 function nextCharacter() {
     currentCharacterIndex++;
     
-    // If we've gone past the end, reset to beginning position
     if (currentCharacterIndex > 5) {
         setTimeout(() => {
             const track = document.getElementById('carousel-track');
             track.style.transition = 'none';
-            currentCharacterIndex = 1; // Reset to first real card
+            currentCharacterIndex = 1;
             updateCarousel();
             setTimeout(() => {
                 track.style.transition = 'transform 0.5s ease';
@@ -1825,12 +1827,11 @@ function nextCharacter() {
 function prevCharacter() {
     currentCharacterIndex--;
     
-    // If we've gone past the beginning, reset to end position
     if (currentCharacterIndex < 1) {
         setTimeout(() => {
             const track = document.getElementById('carousel-track');
             track.style.transition = 'none';
-            currentCharacterIndex = 5; // Reset to last real card
+            currentCharacterIndex = 5;
             updateCarousel();
             setTimeout(() => {
                 track.style.transition = 'transform 0.5s ease';
