@@ -549,10 +549,9 @@ class SolanaWalletManager {
         this.connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com');
         this.isConnected = false;
         
-        // YOUR COLLECTION DETAILS - UPDATE THESE
+        // YOUR ACTUAL COLLECTION DETAILS
+        this.collectionAddress = 'FYJLebVjL9obCoHUxKufFZfW7Yuq8hdLNbRp5qbhDy2G';
         this.collectionSymbol = 'ROC';
-        this.collectionId = 'FYJLebVjL9obCoHUxKufFZfW7Yuq8hdLNbRp5qbhDy2G'; // Your collection ID
-        this.collectionName = 'creapz'; // Part of your NFT names
     }
 
     
@@ -612,33 +611,51 @@ async connectWallet() {
 
     async checkForCNFTs(walletAddress) {
         try {
+            console.log('=== CNFT Detection Debug ===');
+            console.log('Checking wallet for collection:', this.collectionAddress);
+            
             const publicKey = new solanaWeb3.PublicKey(walletAddress);
             
-            const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(publicKey, {
-                programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
-            });
+            // Get all NFTs from the specific collection
+            const nftsInCollection = await this.connection.getProgramAccounts(
+                new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+                {
+                    filters: [
+                        { dataSize: 165 }, // Token account size
+                        { memcmp: { offset: 32, bytes: publicKey.toBase58() }}, // Owner filter
+                    ]
+                }
+            );
+
+            console.log(`Found ${nftsInCollection.length} token accounts owned by wallet`);
 
             let ownedCNFTs = [];
             
-            for (const tokenAccount of tokenAccounts.value) {
-                const tokenData = tokenAccount.account.data.parsed.info;
-                
-                if (tokenData.tokenAmount.uiAmount === 1 && tokenData.tokenAmount.decimals === 0) {
-                    const metadata = await this.getNFTMetadata(tokenData.mint);
+            for (const account of nftsInCollection) {
+                try {
+                    const tokenAccountInfo = await this.connection.getParsedAccountInfo(account.pubkey);
+                    const tokenData = tokenAccountInfo.value?.data?.parsed?.info;
                     
-                    if (metadata && this.isFromYourCollection(metadata)) {
-                        ownedCNFTs.push({
-                            mint: tokenData.mint,
-                            name: metadata.name || 'cReapZ NFT',
-                            symbol: metadata.symbol || 'cREAPZ'
-                        });
+                    if (tokenData && tokenData.tokenAmount.uiAmount === 1 && tokenData.tokenAmount.decimals === 0) {
+                        // This is an NFT, now check if it belongs to your collection
+                        const isFromCollection = await this.checkIfFromCollection(tokenData.mint);
+                        
+                        if (isFromCollection) {
+                            console.log(`✓ Found cReapZ NFT: ${tokenData.mint}`);
+                            ownedCNFTs.push({
+                                mint: tokenData.mint,
+                                name: `cReapZ #${ownedCNFTs.length + 1}`,
+                                symbol: 'ROC'
+                            });
+                        }
                     }
+                } catch (error) {
+                    console.log(`Error checking token account:`, error);
                 }
             }
 
-            console.log(`Found ${ownedCNFTs.length} CNFTs from your collection`);
+            console.log(`Total cReapZ CNFTs found: ${ownedCNFTs.length}`);
             this.updateCNFTStatus(ownedCNFTs);
-            
             return ownedCNFTs;
             
         } catch (error) {
@@ -647,6 +664,45 @@ async connectWallet() {
             return [];
         }
     }
+
+    async checkIfFromCollection(mintAddress) {
+    try {
+        // Get the metadata account for this mint
+        const metadataAddress = await this.getMetadataAddress(mintAddress);
+        const metadataAccount = await this.connection.getAccountInfo(new solanaWeb3.PublicKey(metadataAddress));
+        
+        if (!metadataAccount) {
+            return false;
+        }
+
+        // Simple way: Check if the metadata contains collection info
+        // For DRiP/platform mints, the collection should be in the metadata
+        const metadataBuffer = metadataAccount.data;
+        
+        // Convert collection address to check against metadata
+        const collectionBytes = new solanaWeb3.PublicKey(this.collectionAddress).toBytes();
+        
+        // Check if the collection address appears in the metadata
+        for (let i = 0; i <= metadataBuffer.length - collectionBytes.length; i++) {
+            let match = true;
+            for (let j = 0; j < collectionBytes.length; j++) {
+                if (metadataBuffer[i + j] !== collectionBytes[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                return true;
+            }
+        }
+
+        return false;
+        
+    } catch (error) {
+        console.error('Error checking collection membership:', error);
+        return false;
+    }
+}
 
     async getNFTMetadata(mintAddress) {
         try {
