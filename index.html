@@ -885,16 +885,8 @@ constructor() {
         grimz: []
     };
     
-    // Initialize loading state
-    this.initializeLoadingState();
 }
 
-initializeLoadingState() {
-    // Show loading spinners on all character cards
-    ['creaperz', 'dingbatz', 'lilcreapz', 'grimz'].forEach(className => {
-        this.updateCharacterCard(className, 0);
-    });
-}
 
     async loadCollectionData() {
         try {
@@ -1023,11 +1015,6 @@ processDASData(data) {
                 const classAttr = attributes.find(attr => 
                     attr.trait_type === 'Class'
                 );
-
-                // Debug: Log the first 20 class values we find
-                if (this.allNFTs.length < 20 && classAttr) {
-                    console.log(`NFT ${this.allNFTs.length + 1} class value: "${classAttr.value}" -> normalized: "${this.normalizeClassValue(classAttr.value)}"`);
-                }
                 
                 // Build traits object
                 const traits = {};
@@ -1386,47 +1373,7 @@ debugAPIResponse(data) {
         console.log('Categorized NFTs:', this.categorizedNFTs);
     }
 
-    updateCharacterPages() {
-        // Update character cards with collection counts
-        Object.keys(this.categorizedNFTs).forEach(className => {
-            const count = this.categorizedNFTs[className].length;
-            this.updateCharacterCard(className, count);
-        });
-    }
 
-    updateCharacterCard(className, count) {
-        const cardSelector = `.${className === 'lilcreapz' ? 'lil-creap' : className.slice(0, -1)}`;
-        const card = document.querySelector(cardSelector);
-        
-        if (card) {
-            let badge = card.querySelector('.collection-count');
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.className = 'collection-count';
-                badge.style.cssText = `
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: rgba(0, 255, 255, 0.8);
-                    color: black;
-                    padding: 4px 8px;
-                    border-radius: 12px;
-                    font-size: 0.8rem;
-                    font-weight: bold;
-                    z-index: 10;
-                `;
-                card.appendChild(badge);
-            }
-            
-            if (count === 0 && this.allNFTs.length === 0) {
-                // Still loading
-                badge.innerHTML = 'Loading<span class="loading-spinner"></span>';
-            } else {
-                // Loaded
-                badge.textContent = `${count} NFTs`;
-            }
-        }
-    }
 
     getCharacterNFTs(characterType) {
         return this.categorizedNFTs[characterType] || [];
@@ -1688,9 +1635,9 @@ setInterval(() => {
 const collectionManager = new CollectionManager();
 
 // Load collection data when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    collectionManager.loadCollectionData();
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//    collectionManager.loadCollectionData();
+// });
 
 </script>
 </body>
