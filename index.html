@@ -1645,11 +1645,11 @@ function getCharacterEmoji(characterType) {
 
 function getRarityColor(rarity) {
     const colors = {
-        'Common': '#ffffff',
+        'Common': '#888888',    // Grey
         'Rare': '#ffcc00',      // Yellow
         'Legendary': '#00ff88',  // Green  
         'Ultimate': '#ff44aa',   // Magenta
-        'Eternal': '#888888'     // Grey (instead of black)
+        'Eternal': '#ffffff'     // White
     };
     return colors[rarity] || '#ffffff';
 }
