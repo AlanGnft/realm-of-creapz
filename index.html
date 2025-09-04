@@ -259,14 +259,117 @@
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
 
-        /* Character Grid */
-        .character-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+        /* Character Carousel */
+        .character-carousel {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
             margin-bottom: 3rem;
         }
 
+        .carousel-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .carousel-track {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            transition: transform 0.5s ease;
+            width: 100%;
+        }
+
+        .character-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            width: 280px;
+            height: 320px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .character-card.center {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .character-card.side {
+            opacity: 0.4;
+            transform: scale(0.9);
+            position: relative;
+        }
+
+        .character-card.side::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                rgba(0, 255, 255, 0.3) 0%, 
+                transparent 20%, 
+                transparent 80%, 
+                rgba(0, 255, 255, 0.3) 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Carousel Navigation */
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 20;
+            font-size: 1.5rem;
+            color: #00ffff;
+            backdrop-filter: blur(10px);
+        }
+
+        .carousel-nav:hover {
+            background: rgba(0, 255, 255, 0.4);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav.prev {
+            left: 20px;
+        }
+
+        .carousel-nav.next {
+            right: 20px;
+        }
         .character-card {
             background: rgba(0, 0, 0, 0.6);
             border: 3px solid #00ffff;
@@ -518,23 +621,25 @@
         <!-- Character Navigation -->
         <section class="nav-section">
             <h2 class="section-title">The cReapZ</h2>
-            <div class="character-grid">
-                <div class="character-card creaper" onclick="exploreCharacter('creaper')">
-                    <div class="character-icon">💀</div>
-                    <div class="character-name">cReaperZ</div>
+            <div class="character-carousel">
+                <div class="carousel-nav prev" onclick="prevCharacter()">‹</div>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-track">
+                        <div class="character-card creaper side" onclick="exploreCharacter('creaper')">
+                            <div class="character-name">cReaperZ</div>
+                        </div>
+                        <div class="character-card dingbat center" onclick="exploreCharacter('dingbat')">
+                            <div class="character-name">DingbatZ</div>
+                        </div>
+                        <div class="character-card lil-creap side" onclick="exploreCharacter('lilcreap')">
+                            <div class="character-name">Lil cReapZ</div>
+                        </div>
+                        <div class="character-card grim side" onclick="exploreCharacter('grim')">
+                            <div class="character-name">GrimZ</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="character-card dingbat" onclick="exploreCharacter('dingbat')">
-                    <div class="character-icon">🦇</div>
-                    <div class="character-name">DingbatZ</div>
-                </div>
-                <div class="character-card lil-creap" onclick="exploreCharacter('lilcreap')">
-                    <div class="character-icon">👻</div>
-                    <div class="character-name">Lil cReapZ</div>
-                </div>
-                <div class="character-card grim" onclick="exploreCharacter('grim')">
-                    <div class="character-icon">⚡</div>
-                    <div class="character-name">GrimZ</div>
-                </div>
+                <div class="carousel-nav next" onclick="nextCharacter()">›</div>
             </div>
         </section>
 
@@ -1638,6 +1743,66 @@ const collectionManager = new CollectionManager();
 // document.addEventListener('DOMContentLoaded', () => {
 //    collectionManager.loadCollectionData();
 // });
+
+// Carousel functionality
+let currentCharacterIndex = 1; // Start with DingbatZ centered
+const characters = ['creaper', 'dingbat', 'lilcreap', 'grim'];
+
+function updateCarousel() {
+    const track = document.getElementById('carousel-track');
+    const cards = track.querySelectorAll('.character-card');
+    
+    cards.forEach((card, index) => {
+        card.classList.remove('center', 'side');
+        
+        if (index === currentCharacterIndex) {
+            card.classList.add('center');
+        } else {
+            card.classList.add('side');
+        }
+    });
+}
+
+function nextCharacter() {
+    currentCharacterIndex = (currentCharacterIndex + 1) % characters.length;
+    updateCarousel();
+}
+
+function prevCharacter() {
+    currentCharacterIndex = (currentCharacterIndex - 1 + characters.length) % characters.length;
+    updateCarousel();
+}
+
+// Touch/swipe support for mobile
+let startX = 0;
+let endX = 0;
+
+document.getElementById('carousel-track').addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+});
+
+document.getElementById('carousel-track').addEventListener('touchend', (e) => {
+    endX = e.changedTouches[0].clientX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = startX - endX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            nextCharacter(); // Swipe left
+        } else {
+            prevCharacter(); // Swipe right
+        }
+    }
+}
+
+// Initialize carousel
+document.addEventListener('DOMContentLoaded', () => {
+    updateCarousel();
+});
 
 </script>
 </body>
