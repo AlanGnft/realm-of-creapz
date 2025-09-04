@@ -885,31 +885,75 @@ class CollectionManager {
     }
 
 async fetchCollectionFromAPI() {
-    console.log('Attempting to fetch real collection data...');
+    const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09'; // Replace with your actual key
     
-    // Try different API services in order of reliability
-    const apiAttempts = [
-        () => this.tryHeliusAPI(),
-        () => this.tryMagicEdenAPI(), 
-        () => this.tryTensorAPI(),
-        () => this.tryDirectSolanaQuery()
-    ];
-    
-    for (const attempt of apiAttempts) {
-        try {
-            const result = await attempt();
-            if (result && result.length > 0) {
-                console.log(`Successfully fetched ${result.length} NFTs from API`);
-                this.processRealMetadata(result);
-                return;
-            }
-        } catch (error) {
-            console.log('API attempt failed:', error.message);
+    try {
+        console.log('Fetching collection data from Helius...');
+        
+        const response = await fetch(`https://api.helius.xyz/v0/tokens/metadata?api-key=${HELIUS_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mintAccounts: [this.collectionAddress],
+                includeOffChain: true,
+                disableCache: false
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Helius API error: ${response.status}`);
         }
+
+        const data = await response.json();
+        this.debugAPIResponse(data);
+        this.processHeliusData(data);
+        
+    } catch (error) {
+        console.error('Helius API failed:', error);
+        this.loadMockData();
+    }
+}
+
+processHeliusData(data) {
+    console.log('Processing Helius data...');
+    
+    this.allNFTs = [];
+    
+    if (data && Array.isArray(data)) {
+        data.forEach(item => {
+            if (item.onChainMetadata && item.offChainMetadata) {
+                const metadata = item.offChainMetadata;
+                const attributes = metadata.attributes || [];
+                
+                // Find class trait
+                const classAttr = attributes.find(attr => 
+                    attr.trait_type === 'Class'
+                );
+                
+                // Build traits object
+                const traits = {};
+                attributes.forEach(attr => {
+                    if (attr.trait_type && attr.value) {
+                        traits[attr.trait_type] = attr.value;
+                    }
+                });
+                
+                this.allNFTs.push({
+                    name: metadata.name || 'Unknown cReapZ',
+                    class: classAttr ? classAttr.value.toLowerCase() : 'unknown',
+                    image: metadata.image || '',
+                    traits: traits
+                });
+            }
+        });
     }
     
-    console.log('All API attempts failed, using mock data');
-    this.loadMockData();
+    console.log(`Loaded ${this.allNFTs.length} real NFTs from collection`);
+    
+    if (this.allNFTs.length === 0) {
+        console.log('No NFTs found, using mock data');
+        this.loadMockData();
+    }
 }
 
 async tryHeliusAPI() {
@@ -1337,19 +1381,24 @@ function showCharacterGallery(characterType, nfts) {
                         transition: all 0.4s ease;
                         box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
                     " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 0 25px rgba(0, 255, 255, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 15px rgba(0, 255, 255, 0.2)'">
-                        <div style="
-                            width: 100%;
-                            height: 220px;
-                            background: linear-gradient(45deg, #1a1a1a, #333333);
-                            border: 2px dashed rgba(0, 255, 255, 0.3);
-                            border-radius: 10px;
-                            margin-bottom: 15px;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            color: #666;
-                        ">
+                    <div style="
+                        width: 100%;
+                        height: 220px;
+                        background-image: url('${nft.image}');
+                        background-size: cover;
+                        background-position: center;
+                        background-color: linear-gradient(45deg, #1a1a1a, #333333);
+                        border: 2px solid rgba(0, 255, 255, 0.3);
+                        border-radius: 10px;
+                        margin-bottom: 15px;
+                        position: relative;
+                    ">
+                        ${nft.image ? '' : `
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #666;">
+                                <div style="font-size: 3rem; margin-bottom: 10px;">${getCharacterEmoji(characterType)}</div>
+                                <div style="font-size: 0.9rem;">Loading Image...</div>
+                            </div>
+                        `}
                             <div style="font-size: 3rem; margin-bottom: 10px;">${getCharacterEmoji(characterType)}</div>
                             <div style="font-size: 0.9rem;">Artwork Coming Soon</div>
                             <div style="font-size: 0.8rem; margin-top: 5px;">${nft.name}</div>
