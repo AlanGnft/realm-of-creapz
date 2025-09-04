@@ -884,33 +884,100 @@ class CollectionManager {
         }
     }
 
-    async fetchCollectionFromAPI() {
-        // We can use Helius or similar service for collection data
-        // For now, let's create mock data based on your description
+async fetchCollectionFromAPI() {
+    try {
+        // Use Magic Eden API to get collection data
+        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${this.collectionAddress}/stats`);
+        
+        if (response.ok) {
+            const collectionStats = await response.json();
+            console.log('Collection stats:', collectionStats);
+        }
+
+        // Try Helius API for better metadata
+        const heliusResponse = await fetch('https://api.helius.xyz/v0/tokens/metadata', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                mintAccounts: await this.getCollectionMints(),
+                includeOffChain: true,
+                disableCache: false
+            })
+        });
+
+        if (heliusResponse.ok) {
+            const metadata = await heliusResponse.json();
+            this.processRealMetadata(metadata);
+        } else {
+            throw new Error('API failed, using mock data');
+        }
+        
+    } catch (error) {
+        console.log('API fetch failed, using mock data:', error);
         this.loadMockData();
     }
+}
+
+async getCollectionMints() {
+    // This would ideally get all mints from your collection
+    // For now, return empty array to trigger mock data
+    return [];
+}
+
+processRealMetadata(metadataArray) {
+    this.allNFTs = metadataArray.map(item => {
+        const metadata = item.offChainMetadata || {};
+        const attributes = metadata.attributes || [];
+        
+        // Extract class from attributes
+        const classAttribute = attributes.find(attr => 
+            attr.trait_type && attr.trait_type.toLowerCase().includes('class')
+        );
+        
+        // Extract rarity
+        const rarityAttribute = attributes.find(attr => 
+            attr.trait_type === 'Rarity'
+        );
+
+        return {
+            name: metadata.name || 'Unknown cReapZ',
+            class: classAttribute ? classAttribute.value.toLowerCase() : 'unknown',
+            image: metadata.image || '',
+            traits: {
+                rarity: rarityAttribute ? rarityAttribute.value : 'Common',
+                ...attributes.reduce((acc, attr) => {
+                    if (attr.trait_type !== 'Rarity') {
+                        acc[attr.trait_type] = attr.value;
+                    }
+                    return acc;
+                }, {})
+            }
+        };
+    });
+}
 
     loadMockData() {
-        // Mock data representing your collection spread across all classes
         this.allNFTs = [
             // cReaperZ
-            { name: 'cReaperZ #001', class: 'creaperz', image: 'mock-image-1.jpg', traits: { rarity: 'Common', background: 'Dark Void' }},
-            { name: 'cReaperZ #045', class: 'creaperz', image: 'mock-image-2.jpg', traits: { rarity: 'Rare', background: 'Crimson Sky' }},
-            { name: 'cReaperZ #123', class: 'creaperz', image: 'mock-image-3.jpg', traits: { rarity: 'Epic', background: 'Ethereal Mist' }},
+            { name: 'cReaperZ #001', class: 'creaperz', image: '', traits: { Rarity: 'Common', Background: 'Dark Void', Weapon: 'Scythe' }},
+            { name: 'cReaperZ #045', class: 'creaperz', image: '', traits: { Rarity: 'Rare', Background: 'Crimson Sky', Weapon: 'Soul Blade' }},
+            { name: 'cReaperZ #123', class: 'creaperz', image: '', traits: { Rarity: 'Eternal', Background: 'Ethereal Mist', Weapon: 'Void Staff' }},
             
-            // DingbatZ
-            { name: 'DingbatZ #012', class: 'dingbatz', image: 'mock-image-4.jpg', traits: { rarity: 'Common', wings: 'Tattered' }},
-            { name: 'DingbatZ #089', class: 'dingbatz', image: 'mock-image-5.jpg', traits: { rarity: 'Rare', wings: 'Spectral' }},
-            { name: 'DingbatZ #156', class: 'dingbatz', image: 'mock-image-6.jpg', traits: { rarity: 'Legendary', wings: 'Infernal' }},
+            // DingbatZ  
+            { name: 'DingbatZ #012', class: 'dingbatz', image: '', traits: { Rarity: 'Common', Wings: 'Tattered', Eyes: 'Red' }},
+            { name: 'DingbatZ #089', class: 'dingbatz', image: '', traits: { Rarity: 'Legendary', Wings: 'Spectral', Eyes: 'Void' }},
+            { name: 'DingbatZ #156', class: 'dingbatz', image: '', traits: { Rarity: 'Ultimate', Wings: 'Infernal', Eyes: 'Flame' }},
             
             // Lil cReapZ
-            { name: 'Lil cReapZ #003', class: 'lilcreapz', image: 'mock-image-7.jpg', traits: { rarity: 'Common', size: 'Tiny' }},
-            { name: 'Lil cReapZ #067', class: 'lilcreapz', image: 'mock-image-8.jpg', traits: { rarity: 'Epic', size: 'Mini' }},
+            { name: 'Lil cReapZ #003', class: 'lilcreapz', image: '', traits: { Rarity: 'Rare', Size: 'Tiny', Aura: 'Shadow' }},
+            { name: 'Lil cReapZ #067', class: 'lilcreapz', image: '', traits: { Rarity: 'Ultimate', Size: 'Mini', Aura: 'Chaos' }},
             
             // GrimZ
-            { name: 'GrimZ #028', class: 'grimz', image: 'mock-image-9.jpg', traits: { rarity: 'Rare', aura: 'Shadow' }},
-            { name: 'GrimZ #091', class: 'grimz', image: 'mock-image-10.jpg', traits: { rarity: 'Legendary', aura: 'Void' }},
-            { name: 'GrimZ #134', class: 'grimz', image: 'mock-image-11.jpg', traits: { rarity: 'Mythic', aura: 'Chaos' }},
+            { name: 'GrimZ #028', class: 'grimz', image: '', traits: { Rarity: 'Legendary', Power: 'Shadow', Element: 'Void' }},
+            { name: 'GrimZ #091', class: 'grimz', image: '', traits: { Rarity: 'Eternal', Power: 'Chaos', Element: 'Dark' }},
+            { name: 'GrimZ #134', class: 'grimz', image: '', traits: { Rarity: 'Ultimate', Power: 'Death', Element: 'Soul' }},
         ];
     }
 
@@ -1068,10 +1135,27 @@ function openHelp() {
 }
 
 function exploreCharacter(character) {
-    const characterKey = character === 'lilcreap' ? 'lilcreapz' : character + 's';
-    const nfts = collectionManager.getCharacterNFTs(characterKey);
+    // Fix the character mapping
+    let characterKey;
+    switch(character) {
+        case 'creaper':
+            characterKey = 'creaperz';
+            break;
+        case 'dingbat':
+            characterKey = 'dingbatz';
+            break;
+        case 'lilcreap':
+            characterKey = 'lilcreapz';
+            break;
+        case 'grim':
+            characterKey = 'grimz';
+            break;
+        default:
+            characterKey = character + 's';
+    }
     
-    console.log(`Opening ${character} gallery with ${nfts.length} NFTs`);
+    const nfts = collectionManager.getCharacterNFTs(characterKey);
+    console.log(`Opening ${character} gallery with ${nfts.length} NFTs from key: ${characterKey}`);
     showCharacterGallery(character, nfts);
 }
 
@@ -1175,9 +1259,9 @@ function getRarityColor(rarity) {
     const colors = {
         'Common': '#ffffff',
         'Rare': '#0099ff',
-        'Epic': '#9933ff', 
         'Legendary': '#ff6600',
-        'Mythic': '#ff0066'
+        'Ultimate': '#9933ff',
+        'Eternal': '#ff0066'
     };
     return colors[rarity] || '#ffffff';
 }
