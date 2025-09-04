@@ -1509,14 +1509,14 @@ function exploreCharacter(character) {
     
     const nfts = collectionManager.getCharacterNFTs(characterKey);
     console.log(`Opening ${character} gallery with ${nfts.length} NFTs from key: ${characterKey}`);
-    const displayNames = {
-        'creaper': 'cReaperZ',
-        'dingbat': 'DingbatZ', 
-        'lilcreap': 'Lil cReapZ',
-        'grim': 'GrimZ'
-    };
+            const displayNames = {
+            'creaper': 'cReaperZ',
+            'dingbat': 'DingbatZ', 
+            'lilcreap': 'Lil cReapZ',
+            'grim': 'GrimZ'
+        };
 
-showCharacterGallery(displayNames[character] || character, nfts);
+        showCharacterGallery(displayNames[character] || character, nfts);
 }
 
 function showCharacterGallery(characterType, nfts) {
@@ -1568,28 +1568,16 @@ function showCharacterGallery(characterType, nfts) {
                         transition: all 0.4s ease;
                         box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
                     " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 0 25px rgba(0, 255, 255, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 15px rgba(0, 255, 255, 0.2)'">
-                    <div style="
-                        width: 100%;
-                        height: 220px;
-                        background-image: url('${nft.image}');
-                        background-size: cover;
-                        background-position: center;
-                        background-color: linear-gradient(45deg, #1a1a1a, #333333);
-                        border: 2px solid rgba(0, 255, 255, 0.3);
-                        border-radius: 10px;
-                        margin-bottom: 15px;
-                        position: relative;
-                    ">
                         <div style="
                             width: 100%;
                             height: 220px;
                             background-image: url('${nft.image}');
-                            background-size: contain;
+                            background-size: cover;
                             background-position: center;
                             background-repeat: no-repeat;
-                            background-color: #1a1a1a;
+                            background-color: linear-gradient(45deg, #1a1a1a, #333333);
                             border: 2px solid rgba(0, 255, 255, 0.3);
-                            border-radius: 10px;
+                            border-radius: 5px;
                             margin-bottom: 15px;
                             position: relative;
                         ">
