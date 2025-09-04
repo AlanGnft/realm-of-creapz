@@ -885,21 +885,15 @@ class CollectionManager {
     }
 
 async fetchCollectionFromAPI() {
-    const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09'; // Your actual key
+    const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09'; // Your key
     
     try {
-        console.log('Fetching NFTs from collection...');
+        console.log('Fetching collection NFTs via Helius...');
         
-        // Get all NFTs that belong to your collection
-        const response = await fetch(`https://api.helius.xyz/v0/tokens/metadata?api-key=${HELIUS_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                creators: ["DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny"], // DRiP creator from your console log
-                includeOffChain: true,
-                disableCache: false,
-                limit: 1000 // Adjust based on your collection size
-            })
+        // Use the correct Helius endpoint for getting NFTs by creator
+        const response = await fetch(`https://api.helius.xyz/v0/addresses/DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny/nfts?api-key=${HELIUS_API_KEY}`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
         });
 
         if (!response.ok) {
@@ -907,12 +901,66 @@ async fetchCollectionFromAPI() {
         }
 
         const data = await response.json();
-        console.log(`Raw API returned ${data.length} items`);
-        this.debugAPIResponse(data);
-        this.processHeliusData(data);
+        console.log(`Helius returned ${data.length} total NFTs from creator`);
+        
+        // Filter for your specific collection
+        const filteredData = data.filter(item => {
+            const metadata = item.content?.metadata;
+            return metadata && (
+                metadata.symbol === 'ROC' ||
+                metadata.name?.toLowerCase().includes('creapz') ||
+                metadata.name?.toLowerCase().includes('reapz')
+            );
+        });
+        
+        console.log(`Filtered to ${filteredData.length} cReapZ NFTs`);
+        this.debugAPIResponse(filteredData);
+        this.processHeliusNFTData(filteredData);
         
     } catch (error) {
         console.error('Helius API failed:', error);
+        this.loadMockData();
+    }
+}
+
+processHeliusNFTData(data) {
+    console.log('Processing Helius NFT data...');
+    
+    this.allNFTs = [];
+    
+    if (data && Array.isArray(data)) {
+        data.forEach(item => {
+            const metadata = item.content?.metadata;
+            const attributes = metadata?.attributes || [];
+            
+            if (metadata) {
+                // Find class trait
+                const classAttr = attributes.find(attr => 
+                    attr.trait_type === 'Class'
+                );
+                
+                // Build traits object
+                const traits = {};
+                attributes.forEach(attr => {
+                    if (attr.trait_type && attr.value) {
+                        traits[attr.trait_type] = attr.value;
+                    }
+                });
+                
+                this.allNFTs.push({
+                    name: metadata.name || 'Unknown cReapZ',
+                    class: classAttr ? classAttr.value.toLowerCase() : 'unknown',
+                    image: metadata.image || item.content?.links?.image || '',
+                    traits: traits
+                });
+            }
+        });
+    }
+    
+    console.log(`Loaded ${this.allNFTs.length} real NFTs from collection`);
+    
+    if (this.allNFTs.length === 0) {
+        console.log('No NFTs found, using mock data');
         this.loadMockData();
     }
 }
