@@ -971,6 +971,7 @@ processDASData(data) {
     console.log('Processing DAS data...');
     
     this.allNFTs = [];
+    this.processedDripIds = new Set(); // ADD THIS LINE HERE
     
     if (data.items && Array.isArray(data.items)) {
         data.items.forEach(item => {
@@ -995,7 +996,16 @@ processDASData(data) {
                         traits[attr.trait_type] = attr.value;
                     }
                 });
-                
+
+                // Check for drip_id and skip if we've already seen this design
+                const dripId = traits['drip_id'] || traits['Drip ID'] || traits['DRIP_ID'];
+                if (dripId) {
+                    if (this.processedDripIds.has(dripId)) {
+                        return; // Skip this duplicate
+                    }
+                    this.processedDripIds.add(dripId);
+                }
+
                 this.allNFTs.push({
                     name: metadata.name || 'Unknown cReapZ',
                     class: classAttr ? this.normalizeClassValue(classAttr.value) : 'unknown',
