@@ -1591,7 +1591,7 @@ function showCharacterGallery(characterType, nfts) {
                 ${nfts.map(nft => `
                     <div style="
                         background: rgba(0, 0, 0, 0.8);
-                        border: 2px solid #00ffff;
+                        border: 3px solid ${getRarityBorderColor(nft.traits.Rarity)};
                         border-radius: 15px;
                         padding: 20px;
                         text-align: center;
@@ -1607,7 +1607,7 @@ function showCharacterGallery(characterType, nfts) {
     background-position: center;
     background-repeat: no-repeat;
     background-color: linear-gradient(45deg, #1a1a1a, #333333);
-    border: 3px solid ${getRarityBorderColor(nft.traits.Rarity)};
+    border: 2px solid rgba(0, 255, 255, 0.3);
     border-radius: 10px;
     margin-bottom: 15px;
     position: relative;
