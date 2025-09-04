@@ -1583,13 +1583,13 @@ function showCharacterGallery(characterType, nfts) {
 ">
 </div>
                         <h3 style="margin: 15px 0 10px 0; font-family: 'Chiller', cursive; font-size: 1.3rem; color: #00ffff;">${nft.name}</h3>
-                        <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.9rem;">
-                            <div style="color: getRarityColor('${nft.traits.rarity}'); font-weight: bold;">
-                                ${nft.traits.rarity}
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 1.1rem;">
+                            <div style="color: ${getRarityColor(nft.traits.Rarity)}; font-weight: bold;">
+                                ${nft.traits.Rarity || 'Unknown'}
                             </div>
-                            ${Object.entries(nft.traits).filter(([key]) => key !== 'rarity').map(([key, value]) => 
-                                `<div style="color: #bbb;"><span style="color: #888;">${key}:</span> ${value}</div>`
-                            ).join('')}
+                            <div style="color: #bbb;">
+                                ${nft.traits.Set || 'Unknown'}
+                            </div>
                         </div>
                     </div>
                 `).join('')}
