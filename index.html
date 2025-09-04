@@ -444,6 +444,21 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #00ffff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
     </style>
 
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
@@ -859,17 +874,27 @@ async connectWallet() {
 }
 
 class CollectionManager {
-    constructor() {
-        this.collectionAddress = 'FYJLebVjL9obCoHUxKufFZfW7Yuq8hdLNbRp5qbhDy2G';
-        this.connection = new solanaWeb3.Connection('https://rpc.ankr.com/solana');
-        this.allNFTs = [];
-        this.categorizedNFTs = {
-            creaperz: [],
-            dingbatz: [],
-            lilcreapz: [],
-            grimz: []
-        };
-    }
+constructor() {
+    this.collectionAddress = 'FYJLebVjL9obCoHUxKufFZfW7Yuq8hdLNbRp5qbhDy2G';
+    this.connection = new solanaWeb3.Connection('https://rpc.ankr.com/solana');
+    this.allNFTs = [];
+    this.categorizedNFTs = {
+        creaperz: [],
+        dingbatz: [],
+        lilcreapz: [],
+        grimz: []
+    };
+    
+    // Initialize loading state
+    this.initializeLoadingState();
+}
+
+initializeLoadingState() {
+    // Show loading spinners on all character cards
+    ['creaperz', 'dingbatz', 'lilcreapz', 'grimz'].forEach(className => {
+        this.updateCharacterCard(className, 0);
+    });
+}
 
     async loadCollectionData() {
         try {
@@ -1358,7 +1383,6 @@ debugAPIResponse(data) {
         const card = document.querySelector(cardSelector);
         
         if (card) {
-            // Add count badge to character card
             let badge = card.querySelector('.collection-count');
             if (!badge) {
                 badge = document.createElement('div');
@@ -1377,7 +1401,14 @@ debugAPIResponse(data) {
                 `;
                 card.appendChild(badge);
             }
-            badge.textContent = `${count} NFTs`;
+            
+            if (count === 0 && this.allNFTs.length === 0) {
+                // Still loading
+                badge.innerHTML = 'Loading<span class="loading-spinner"></span>';
+            } else {
+                // Loaded
+                badge.textContent = `${count} NFTs`;
+            }
         }
     }
 
