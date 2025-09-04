@@ -281,10 +281,10 @@
 .carousel-track {
     display: flex;
     align-items: center;
-    width: 2800px; /* 7 cards * 400px each (includes duplicates) */
+    width: 2800px; /* 7 cards * 400px each */
     height: 100%;
     transition: transform 0.5s ease;
-    transform: translateX(-1000px); /* Adjusted to properly center */
+    transform: translateX(-1100px); /* This will be overridden by JavaScript */
 }
 
 .character-card {
@@ -1787,11 +1787,14 @@ function initializeCarousel() {
 
 function updateCarousel() {
     const track = document.getElementById('carousel-track');
-    const cardWidth = 400;
-    const containerWidth = 600;
-    const centerOffset = (containerWidth - 280) / 2; // Center the 280px card in 600px container
-    const baseOffset = -1000; // Starting position
-    const offset = baseOffset - (currentCharacterIndex - 3) * cardWidth;
+    const cardWidth = 400; // Card width including margins
+    const containerWidth = 600; // Container width
+    
+    // Calculate offset to center the current card
+    // Center position should be: (containerWidth / 2) - (cardWidth / 2) = 100px from left edge
+    // For card at index 3 to be centered: -((3 * 400) - 100) = -1100px
+    const centerPosition = (containerWidth - cardWidth) / 2; // 100px
+    const offset = -(currentCharacterIndex * cardWidth) + centerPosition;
     
     track.style.transform = `translateX(${offset}px)`;
     
