@@ -890,14 +890,17 @@ async fetchCollectionFromAPI() {
     try {
         console.log('Fetching collection via DAS API...');
         
-        // Use the DAS API to search for assets by collection
-        const response = await fetch(`https://api.helius.xyz/v0/digital-assets/search?api-key=${HELIUS_API_KEY}`, {
+        // Correct Helius DAS API endpoint
+        const response = await fetch(`https://api.helius.xyz/v0/das/searchAssets?api-key=${HELIUS_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 grouping: ["collection", this.collectionAddress],
                 page: 1,
-                limit: 1000
+                limit: 1000,
+                displayOptions: {
+                    showFungible: false
+                }
             })
         });
 
@@ -912,28 +915,37 @@ async fetchCollectionFromAPI() {
         
     } catch (error) {
         console.error('DAS API failed:', error);
-        // Try alternative DAS endpoint
-        this.tryAlternativeDAS();
+        this.tryCreatorSearch();
     }
 }
 
-async tryAlternativeDAS() {
+async tryCreatorSearch() {
     const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09';
     
     try {
-        // Alternative: Search by creator address (DRiP)
-        const response = await fetch(`https://api.helius.xyz/v0/digital-assets/search?api-key=${HELIUS_API_KEY}`, {
+        console.log('Trying creator-based search...');
+        
+        // Search by creator with correct endpoint
+        const response = await fetch(`https://api.helius.xyz/v0/das/searchAssets?api-key=${HELIUS_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 creatorAddress: "DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny",
                 creatorVerified: true,
                 page: 1,
-                limit: 1000
+                limit: 1000,
+                displayOptions: {
+                    showFungible: false
+                }
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`Creator search failed: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log(`Creator search returned ${data.items?.length || 0} total items`);
         
         // Filter for your specific collection
         const filtered = data.items?.filter(item => 
@@ -945,7 +957,7 @@ async tryAlternativeDAS() {
         this.processDASData({ items: filtered });
         
     } catch (error) {
-        console.error('All DAS attempts failed:', error);
+        console.error('Creator search failed:', error);
         this.loadMockData();
     }
 }
