@@ -982,6 +982,11 @@ processDASData(data) {
                 const classAttr = attributes.find(attr => 
                     attr.trait_type === 'Class'
                 );
+
+                // Debug: Log the first 20 class values we find
+                if (this.allNFTs.length < 20 && classAttr) {
+                    console.log(`NFT ${this.allNFTs.length + 1} class value: "${classAttr.value}" -> normalized: "${this.normalizeClassValue(classAttr.value)}"`);
+                }
                 
                 // Build traits object
                 const traits = {};
