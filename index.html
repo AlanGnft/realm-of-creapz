@@ -273,9 +273,10 @@
 
 .carousel-container {
     position: relative;
-    width: 600px; /* Wider to show more of side cards */
+    width: 600px;
     height: 100%;
     overflow: hidden;
+    border-radius: 20px;
 }
 
 .carousel-track {
@@ -290,7 +291,7 @@
 .character-card {
     background: rgba(0, 0, 0, 0.6);
     border: 3px solid #00ffff;
-    border-radius: 15px;
+    border-radius: 20px;
     width: 280px;
     height: 320px;
     margin: 0 60px;
@@ -307,7 +308,7 @@
     background-repeat: no-repeat;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
     flex-shrink: 0;
-    opacity: 0.4;
+    opacity: 0.3;
     transform: scale(0.85);
 }
 
@@ -317,14 +318,14 @@
     z-index: 10;
 }
 
-/* Softer fade overlay for side cards */
+/* Softer rounded fade overlay */
 .carousel-container::before,
 .carousel-container::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 150px;
+    width: 120px;
     z-index: 15;
     pointer-events: none;
 }
@@ -332,21 +333,27 @@
 .carousel-container::before {
     left: 0;
     background: linear-gradient(90deg, 
-        rgba(10, 10, 10, 0.9) 0%, 
-        rgba(10, 10, 10, 0.7) 20%,
-        rgba(0, 255, 255, 0.1) 40%,
+        rgba(0, 255, 255, 0.8) 0%,
+        rgba(0, 255, 255, 0.6) 15%,
+        rgba(0, 255, 255, 0.4) 30%,
+        rgba(0, 255, 255, 0.2) 50%,
+        rgba(0, 255, 255, 0.1) 70%,
         transparent 100%
     );
+    border-radius: 20px 0 0 20px;
 }
 
 .carousel-container::after {
     right: 0;
     background: linear-gradient(270deg, 
-        rgba(10, 10, 10, 0.9) 0%, 
-        rgba(10, 10, 10, 0.7) 20%,
-        rgba(0, 255, 255, 0.1) 40%,
+        rgba(0, 255, 255, 0.8) 0%,
+        rgba(0, 255, 255, 0.6) 15%,
+        rgba(0, 255, 255, 0.4) 30%,
+        rgba(0, 255, 255, 0.2) 50%,
+        rgba(0, 255, 255, 0.1) 70%,
         transparent 100%
     );
+    border-radius: 0 20px 20px 0;
 }
 
 /* Carousel Navigation */
@@ -1747,7 +1754,7 @@ const collectionManager = new CollectionManager();
 // });
 
 // Carousel functionality with infinite scroll
-let currentCharacterIndex = 3; // Start at position 3 (first real cReaperZ)
+let currentCharacterIndex = 1; // Start at position 1 (cReaperZ)
 const characters = ['creaper', 'dingbat', 'lilcreap', 'grim'];
 
 // Create track with duplicates for infinite scroll
