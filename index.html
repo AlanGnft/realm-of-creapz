@@ -1583,14 +1583,14 @@ function showCharacterGallery(characterType, nfts) {
 ">
 </div>
                         <h3 style="margin: 15px 0 10px 0; font-family: 'Chiller', cursive; font-size: 1.3rem; color: #00ffff;">${nft.name}</h3>
-                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 1.1rem;">
-                            <div style="color: ${getRarityColor(nft.traits.Rarity)}; font-weight: bold;">
-                                ${nft.traits.Rarity || 'Unknown'}
-                            </div>
-                            <div style="color: #bbb;">
-                                ${nft.traits.Set || 'Unknown'}
-                            </div>
-                        </div>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 1.1rem;">
+    <div style="color: ${getRarityColor(nft.traits.Rarity)}; font-weight: bold;">
+        ${nft.traits.Rarity || 'Unknown'}
+    </div>
+    <div style="color: #bbb;">
+        Set: ${nft.traits.Set || nft.traits.Drop || 'Unknown'}
+    </div>
+</div>
                     </div>
                 `).join('')}
             </div>
