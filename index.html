@@ -1037,6 +1037,8 @@ processDASData(data) {
                     }
                 });
 
+                
+
                 // Check for drip_id and skip if we've already seen this design
                 const dripId = traits['drip_id'] || traits['Drip ID'] || traits['DRIP_ID'];
                 if (dripId) {
@@ -1044,6 +1046,20 @@ processDASData(data) {
                         return; // Skip this duplicate
                     }
                     this.processedDripIds.add(dripId);
+                    
+                    // Block specific collectibles by drip_id
+                    const blockedDripIds = [
+                        'd79d848eb-290c-4d0d-b36f-b25e7694f4f0',  // Replace with actual drip_id
+                        '9b58eb8e-15df-49aa-853f-c40d36ed0823',  // Replace with actual drip_id
+                        // 'another_drip_id',     // Add more as needed
+                        // 'yet_another_id',      // Easy to uncomment and use
+                        // 'future_blocked_id',   // Placeholder for future blocks
+                    ];
+                    
+                    if (blockedDripIds.includes(dripId)) {
+                        console.log(`Blocked collectible with drip_id: ${dripId}`);
+                        return; // Skip this collectible
+                    }
                 }
 
                 this.allNFTs.push({
