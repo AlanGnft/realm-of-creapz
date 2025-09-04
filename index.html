@@ -891,15 +891,26 @@ class CollectionManager {
     }
 
     loadMockData() {
-        // Mock data representing your collection
+        // Mock data representing your collection spread across all classes
         this.allNFTs = [
-            { name: 'cReaperZ #001', class: 'creaperz', image: 'mock-image-1.jpg', traits: { rarity: 'Common' }},
-            { name: 'cReaperZ #045', class: 'creaperz', image: 'mock-image-2.jpg', traits: { rarity: 'Rare' }},
-            { name: 'DingbatZ #012', class: 'dingbatz', image: 'mock-image-3.jpg', traits: { rarity: 'Epic' }},
-            { name: 'DingbatZ #089', class: 'dingbatz', image: 'mock-image-4.jpg', traits: { rarity: 'Common' }},
-            { name: 'Lil cReapZ #003', class: 'lilcreapz', image: 'mock-image-5.jpg', traits: { rarity: 'Legendary' }},
-            { name: 'GrimZ #067', class: 'grimz', image: 'mock-image-6.jpg', traits: { rarity: 'Rare' }},
-            // Add more mock data...
+            // cReaperZ
+            { name: 'cReaperZ #001', class: 'creaperz', image: 'mock-image-1.jpg', traits: { rarity: 'Common', background: 'Dark Void' }},
+            { name: 'cReaperZ #045', class: 'creaperz', image: 'mock-image-2.jpg', traits: { rarity: 'Rare', background: 'Crimson Sky' }},
+            { name: 'cReaperZ #123', class: 'creaperz', image: 'mock-image-3.jpg', traits: { rarity: 'Epic', background: 'Ethereal Mist' }},
+            
+            // DingbatZ
+            { name: 'DingbatZ #012', class: 'dingbatz', image: 'mock-image-4.jpg', traits: { rarity: 'Common', wings: 'Tattered' }},
+            { name: 'DingbatZ #089', class: 'dingbatz', image: 'mock-image-5.jpg', traits: { rarity: 'Rare', wings: 'Spectral' }},
+            { name: 'DingbatZ #156', class: 'dingbatz', image: 'mock-image-6.jpg', traits: { rarity: 'Legendary', wings: 'Infernal' }},
+            
+            // Lil cReapZ
+            { name: 'Lil cReapZ #003', class: 'lilcreapz', image: 'mock-image-7.jpg', traits: { rarity: 'Common', size: 'Tiny' }},
+            { name: 'Lil cReapZ #067', class: 'lilcreapz', image: 'mock-image-8.jpg', traits: { rarity: 'Epic', size: 'Mini' }},
+            
+            // GrimZ
+            { name: 'GrimZ #028', class: 'grimz', image: 'mock-image-9.jpg', traits: { rarity: 'Rare', aura: 'Shadow' }},
+            { name: 'GrimZ #091', class: 'grimz', image: 'mock-image-10.jpg', traits: { rarity: 'Legendary', aura: 'Void' }},
+            { name: 'GrimZ #134', class: 'grimz', image: 'mock-image-11.jpg', traits: { rarity: 'Mythic', aura: 'Chaos' }},
         ];
     }
 
@@ -1057,17 +1068,14 @@ function openHelp() {
 }
 
 function exploreCharacter(character) {
-    const nfts = collectionManager.getCharacterNFTs(character + 's');
+    const characterKey = character === 'lilcreap' ? 'lilcreapz' : character + 's';
+    const nfts = collectionManager.getCharacterNFTs(characterKey);
     
-    if (nfts.length > 0) {
-        showCharacterGallery(character, nfts);
-    } else {
-        alert(`No ${character} found in collection yet. Check back later!`);
-    }
+    console.log(`Opening ${character} gallery with ${nfts.length} NFTs`);
+    showCharacterGallery(character, nfts);
 }
 
 function showCharacterGallery(characterType, nfts) {
-    // Create gallery modal
     const modal = document.createElement('div');
     modal.style.cssText = `
         position: fixed;
@@ -1075,7 +1083,7 @@ function showCharacterGallery(characterType, nfts) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.95);
         z-index: 3000;
         overflow-y: auto;
         padding: 20px;
@@ -1084,44 +1092,64 @@ function showCharacterGallery(characterType, nfts) {
     const content = `
         <div style="max-width: 1200px; margin: 0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="color: #00ffff; font-family: 'Creepster', cursive; font-size: 2rem;">
-                    ${characterType} Collection (${nfts.length} NFTs)
+                <h2 style="color: #00ffff; font-family: 'Spooky Ghoster', 'Creepster', cursive; font-size: 2.5rem; text-shadow: 0 0 10px #00ffff;">
+                    ${characterType.charAt(0).toUpperCase() + characterType.slice(1)} Collection
                 </h2>
                 <button onclick="this.closest('.modal').remove()" style="
-                    background: #ff4444;
-                    border: none;
+                    background: linear-gradient(45deg, #ff4444, #cc3333);
+                    border: 2px solid #ff6666;
                     color: white;
-                    padding: 10px 20px;
-                    border-radius: 5px;
+                    padding: 12px 24px;
+                    border-radius: 8px;
                     cursor: pointer;
                     font-family: 'Chiller', cursive;
                     font-size: 1.1rem;
-                ">Close</button>
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    Close Gallery
+                </button>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            <div style="text-align: center; margin-bottom: 20px; color: #ccc; font-family: 'Chiller', cursive; font-size: 1.2rem;">
+                ${nfts.length} unique ${characterType} discovered in the collection
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
                 ${nfts.map(nft => `
                     <div style="
-                        background: rgba(0, 0, 0, 0.6);
+                        background: rgba(0, 0, 0, 0.8);
                         border: 2px solid #00ffff;
-                        border-radius: 10px;
-                        padding: 15px;
+                        border-radius: 15px;
+                        padding: 20px;
                         text-align: center;
                         color: white;
-                    ">
+                        transition: all 0.4s ease;
+                        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+                    " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 0 25px rgba(0, 255, 255, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 15px rgba(0, 255, 255, 0.2)'">
                         <div style="
                             width: 100%;
-                            height: 200px;
-                            background: linear-gradient(45deg, #333, #555);
-                            border-radius: 8px;
-                            margin-bottom: 10px;
+                            height: 220px;
+                            background: linear-gradient(45deg, #1a1a1a, #333333);
+                            border: 2px dashed rgba(0, 255, 255, 0.3);
+                            border-radius: 10px;
+                            margin-bottom: 15px;
                             display: flex;
+                            flex-direction: column;
                             align-items: center;
                             justify-content: center;
+                            color: #666;
                         ">
-                            Image Placeholder<br><small>(${nft.name})</small>
+                            <div style="font-size: 3rem; margin-bottom: 10px;">${getCharacterEmoji(characterType)}</div>
+                            <div style="font-size: 0.9rem;">Artwork Coming Soon</div>
+                            <div style="font-size: 0.8rem; margin-top: 5px;">${nft.name}</div>
                         </div>
-                        <h3 style="margin: 10px 0; font-family: 'Chiller', cursive;">${nft.name}</h3>
-                        <p style="color: #ccc;">Rarity: ${nft.traits.rarity}</p>
+                        <h3 style="margin: 15px 0 10px 0; font-family: 'Chiller', cursive; font-size: 1.3rem; color: #00ffff;">${nft.name}</h3>
+                        <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.9rem;">
+                            <div style="color: getRarityColor('${nft.traits.rarity}'); font-weight: bold;">
+                                ${nft.traits.rarity}
+                            </div>
+                            ${Object.entries(nft.traits).filter(([key]) => key !== 'rarity').map(([key, value]) => 
+                                `<div style="color: #bbb;"><span style="color: #888;">${key}:</span> ${value}</div>`
+                            ).join('')}
+                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -1131,6 +1159,27 @@ function showCharacterGallery(characterType, nfts) {
     modal.className = 'modal';
     modal.innerHTML = content;
     document.body.appendChild(modal);
+}
+
+function getCharacterEmoji(characterType) {
+    const emojis = {
+        'creaper': '💀',
+        'dingbat': '🦇', 
+        'lilcreap': '👻',
+        'grim': '⚡'
+    };
+    return emojis[characterType] || '💀';
+}
+
+function getRarityColor(rarity) {
+    const colors = {
+        'Common': '#ffffff',
+        'Rare': '#0099ff',
+        'Epic': '#9933ff', 
+        'Legendary': '#ff6600',
+        'Mythic': '#ff0066'
+    };
+    return colors[rarity] || '#ffffff';
 }
 
 function openLore() {
