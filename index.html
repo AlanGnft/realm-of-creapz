@@ -1607,7 +1607,7 @@ function showCharacterGallery(characterType, nfts) {
     background-position: center;
     background-repeat: no-repeat;
     background-color: linear-gradient(45deg, #1a1a1a, #333333);
-    border: 2px solid rgba(0, 255, 255, 0.3);
+    border: 3px solid ${getRarityBorderColor(nft.traits.Rarity)};
     border-radius: 10px;
     margin-bottom: 15px;
     position: relative;
@@ -1646,12 +1646,17 @@ function getCharacterEmoji(characterType) {
 function getRarityColor(rarity) {
     const colors = {
         'Common': '#ffffff',
-        'Rare': '#0099ff',
-        'Legendary': '#ff6600',
-        'Ultimate': '#9933ff',
-        'Eternal': '#ff0066'
+        'Rare': '#ffcc00',      // Yellow
+        'Legendary': '#00ff88',  // Green  
+        'Ultimate': '#ff44aa',   // Magenta
+        'Eternal': '#888888'     // Grey (instead of black)
     };
     return colors[rarity] || '#ffffff';
+}
+
+function getRarityBorderColor(rarity) {
+    // Same colors as text, but can be tweaked if needed
+    return getRarityColor(rarity);
 }
 
 function openLore() {
