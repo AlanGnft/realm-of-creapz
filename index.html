@@ -1433,6 +1433,121 @@ debugAPIResponse(data) {
     }
 }
 
+const characterLore = {
+    creaper: {
+        title: "cReaperZ",
+        lore: `The ancient harbingers of the Realm, cReaperZ are the primary wielders of SoulZ energy. Born from the convergence of digital chaos and mystical forces, they maintain the delicate balance between order and pandemonium. Each cReaper commands unique abilities tied to their essence, capable of harvesting and channeling the raw power that flows through the Realm.`
+    },
+    dingbat: {
+        title: "DingbatZ", 
+        lore: `Swift and cunning, the DingbatZ serve as scouts and messengers throughout the Realm. These loyal companions to the cReaperZ possess an innate ability to locate and retrieve precious SoulZ from the most treacherous corners of the digital void. Their wings shimmer with spectral energy, allowing them to phase between dimensions at will.`
+    },
+    lilcreap: {
+        title: "Lil cReapZ",
+        lore: `The newest generation of the Realm's guardians, Lil cReapZ may be small in stature but possess immense potential. Born from concentrated SoulZ essence, they learn the ancient ways while developing their own unique approaches to maintaining cosmic balance. Their youthful energy often leads to unexpected manifestations of power.`
+    },
+    grim: {
+        title: "GrimZ",
+        lore: `The elemental forces of the Realm given form, GrimZ embody pure chaotic energy. Neither fully alive nor completely digital, they exist as living conduits of the Realm's most primal powers. When the balance tips too far toward order, the GrimZ emerge to restore the necessary chaos that keeps the Realm's energy flowing.`
+    }
+};
+
+function exploreCharacter(character) {
+    const lore = characterLore[character];
+    if (!lore) return;
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    `;
+
+    const content = `
+        <div style="
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        ">
+            <button onclick="this.closest('.modal').remove()" style="
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                background: linear-gradient(45deg, #ff4444, #cc3333);
+                border: 2px solid #ff6666;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-family: 'Chiller', cursive;
+                font-size: 1.2rem;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">×</button>
+            
+            <h2 style="
+                font-family: 'Spooky Ghoster', 'Creepster', cursive;
+                font-size: 3rem;
+                color: #00ffff;
+                text-shadow: 0 0 20px #00ffff;
+                margin-bottom: 30px;
+            ">${lore.title}</h2>
+            
+            <p style="
+                font-family: 'Chiller', cursive;
+                font-size: 1.3rem;
+                line-height: 1.6;
+                color: #ddd;
+                margin-bottom: 30px;
+            ">${lore.lore}</p>
+            
+            <div style="
+                font-size: 1rem;
+                color: #888;
+                font-style: italic;
+            ">Ancient knowledge from the Realm archives...</div>
+        </div>
+    `;
+
+    modal.className = 'modal';
+    modal.innerHTML = content;
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+function getRarityColor(rarity) {
+    const colors = {
+        'Common': '#ffffff',
+        'Rare': '#ffcc00',      // Yellow
+        'Legendary': '#00ff88',  // Green  
+        'Ultimate': '#ff44aa',   // Magenta
+        'Eternal': '#888888'     // Grey (instead of black)
+    };
+    return colors[rarity] || '#ffffff';
+}
+
 // Initialize wallet manager
 const walletManager = new SolanaWalletManager();
 
@@ -1534,141 +1649,7 @@ function openHelp() {
     alert('Help section would open here - FAQ, support, guides, etc.');
 }
 
-function exploreCharacter(character) {
-    // Fix the character mapping
-    let characterKey;
-    switch(character) {
-        case 'creaper':
-            characterKey = 'creaperz';
-            break;
-        case 'dingbat':
-            characterKey = 'dingbatz';
-            break;
-        case 'lilcreap':
-            characterKey = 'lilcreapz';
-            break;
-        case 'grim':
-            characterKey = 'grimz';
-            break;
-        default:
-            characterKey = character + 's';
-    }
-    
-    const nfts = collectionManager.getCharacterNFTs(characterKey);
-    console.log(`Opening ${character} gallery with ${nfts.length} NFTs from key: ${characterKey}`);
-            const displayNames = {
-            'creaper': 'cReaperZ',
-            'dingbat': 'DingbatZ', 
-            'lilcreap': 'Lil cReapZ',
-            'grim': 'GrimZ'
-        };
 
-        showCharacterGallery(displayNames[character] || character, nfts);
-}
-
-function showCharacterGallery(characterType, nfts) {
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 3000;
-        overflow-y: auto;
-        padding: 20px;
-    `;
-
-    const content = `
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="color: #00ffff; font-family: 'Spooky Ghoster', 'Creepster', cursive; font-size: 2.5rem; text-shadow: 0 0 10px #00ffff;">
-                    ${characterType}
-                </h2>
-                <button onclick="this.closest('.modal').remove()" style="
-                    background: linear-gradient(45deg, #ff4444, #cc3333);
-                    border: 2px solid #ff6666;
-                    color: white;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-family: 'Chiller', cursive;
-                    font-size: 1.1rem;
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    Close Gallery
-                </button>
-            </div>
-            <div style="text-align: center; margin-bottom: 20px; color: #ccc; font-family: 'Chiller', cursive; font-size: 1.2rem;">
-                ${nfts.length} unique ${characterType} discovered in the collection
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
-                ${nfts.map(nft => `
-                    <div style="
-                        background: rgba(0, 0, 0, 0.8);
-                        border: 3px solid ${getRarityBorderColor(nft.traits.Rarity)};
-                        border-radius: 15px;
-                        padding: 20px;
-                        text-align: center;
-                        color: white;
-                        transition: all 0.4s ease;
-                        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-                    " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 0 25px rgba(0, 255, 255, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 15px rgba(0, 255, 255, 0.2)'">
-<div style="
-    width: 100%;
-    aspect-ratio: 1;
-    background-image: url('${nft.image}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: linear-gradient(45deg, #1a1a1a, #333333);
-    border: 2px solid rgba(0, 255, 255, 0.3);
-    border-radius: 10px;
-    margin-bottom: 15px;
-    position: relative;
-">
-</div>
-                        <h3 style="margin: 15px 0 10px 0; font-family: 'Chiller', cursive; font-size: 1.3rem; color: #00ffff;">${nft.name}</h3>
-<div style="display: flex; flex-direction: column; gap: 8px; font-size: 1.1rem;">
-    <div style="color: ${getRarityColor(nft.traits.Rarity)}; font-weight: bold;">
-        ${nft.traits.Rarity || 'Unknown'}
-    </div>
-    <div style="color: #bbb;">
-        Set: ${nft.traits.Set || nft.traits.Drop || 'Unknown'}
-    </div>
-</div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-
-    modal.className = 'modal';
-    modal.innerHTML = content;
-    document.body.appendChild(modal);
-}
-
-function getCharacterEmoji(characterType) {
-    const emojis = {
-        'creaper': '💀',
-        'dingbat': '🦇', 
-        'lilcreap': '👻',
-        'grim': '⚡'
-    };
-    return emojis[characterType] || '💀';
-}
-
-function getRarityColor(rarity) {
-    const colors = {
-        'Common': '#888888',    // Grey
-        'Rare': '#ffcc00',      // Yellow
-        'Legendary': '#00ff88',  // Green  
-        'Ultimate': '#ff44aa',   // Magenta
-        'Eternal': '#ffffff'     // White
-    };
-    return colors[rarity] || '#ffffff';
-}
 
 function getRarityBorderColor(rarity) {
     // Same colors as text, but can be tweaked if needed
