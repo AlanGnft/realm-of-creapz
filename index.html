@@ -273,7 +273,7 @@
 
 .carousel-container {
     position: relative;
-    width: 400px;
+    width: 600px; /* Wider to show more of side cards */
     height: 100%;
     overflow: hidden;
 }
@@ -281,10 +281,10 @@
 .carousel-track {
     display: flex;
     align-items: center;
-    width: 1600px; /* 4 cards * 400px each */
+    width: 2800px; /* 7 cards * 400px each (includes duplicates) */
     height: 100%;
     transition: transform 0.5s ease;
-    transform: translateX(-400px); /* Start with first card centered */
+    transform: translateX(-1200px); /* Start with first card centered */
 }
 
 .character-card {
@@ -317,14 +317,14 @@
     z-index: 10;
 }
 
-/* Fade overlay for side cards */
+/* Softer fade overlay for side cards */
 .carousel-container::before,
 .carousel-container::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 100px;
+    width: 150px;
     z-index: 15;
     pointer-events: none;
 }
@@ -332,8 +332,9 @@
 .carousel-container::before {
     left: 0;
     background: linear-gradient(90deg, 
-        rgba(10, 10, 10, 1) 0%, 
-        rgba(0, 255, 255, 0.3) 30%,
+        rgba(10, 10, 10, 0.9) 0%, 
+        rgba(10, 10, 10, 0.7) 20%,
+        rgba(0, 255, 255, 0.1) 40%,
         transparent 100%
     );
 }
@@ -341,8 +342,9 @@
 .carousel-container::after {
     right: 0;
     background: linear-gradient(270deg, 
-        rgba(10, 10, 10, 1) 0%, 
-        rgba(0, 255, 255, 0.3) 30%,
+        rgba(10, 10, 10, 0.9) 0%, 
+        rgba(10, 10, 10, 0.7) 20%,
+        rgba(0, 255, 255, 0.1) 40%,
         transparent 100%
     );
 }
@@ -636,18 +638,7 @@
                 <div class="carousel-nav prev" onclick="prevCharacter()">‹</div>
                 <div class="carousel-container">
                     <div class="carousel-track" id="carousel-track">
-                        <div class="character-card creaper" onclick="exploreCharacter('creaper')">
-                            <div class="character-name">cReaperZ</div>
-                        </div>
-                        <div class="character-card dingbat" onclick="exploreCharacter('dingbat')">
-                            <div class="character-name">DingbatZ</div>
-                        </div>
-                        <div class="character-card lil-creap" onclick="exploreCharacter('lilcreap')">
-                            <div class="character-name">Lil cReapZ</div>
-                        </div>
-                        <div class="character-card grim" onclick="exploreCharacter('grim')">
-                            <div class="character-name">GrimZ</div>
-                        </div>
+                        <!-- Cards will be dynamically created by JavaScript -->
                     </div>
                 </div>
                 <div class="carousel-nav next" onclick="nextCharacter()">›</div>
@@ -1755,13 +1746,48 @@ const collectionManager = new CollectionManager();
 //    collectionManager.loadCollectionData();
 // });
 
-// Carousel functionality
-let currentCharacterIndex = 0; // Start with cReaperZ (index 0)
+// Carousel functionality with infinite scroll
+let currentCharacterIndex = 3; // Start at position 3 (first real cReaperZ)
 const characters = ['creaper', 'dingbat', 'lilcreap', 'grim'];
+
+// Create track with duplicates for infinite scroll
+function initializeCarousel() {
+    const track = document.getElementById('carousel-track');
+    const originalCards = Array.from(track.children);
+    
+    // Clear track
+    track.innerHTML = '';
+    
+    // Add cards in order: [grim, creaper, dingbat, lilcreap, grim, creaper, dingbat]
+    // This allows seamless infinite scrolling
+    const cardOrder = ['grim', 'creaper', 'dingbat', 'lilcreap', 'grim', 'creaper', 'dingbat'];
+    const classMap = {
+        'grim': 'grim',
+        'creaper': 'creaper', 
+        'dingbat': 'dingbat',
+        'lilcreap': 'lil-creap'
+    };
+    const nameMap = {
+        'grim': 'GrimZ',
+        'creaper': 'cReaperZ',
+        'dingbat': 'DingbatZ', 
+        'lilcreap': 'Lil cReapZ'
+    };
+    
+    cardOrder.forEach(charType => {
+        const card = document.createElement('div');
+        card.className = `character-card ${classMap[charType]}`;
+        card.onclick = () => exploreCharacter(charType === 'lilcreap' ? 'lilcreap' : charType);
+        card.innerHTML = `<div class="character-name">${nameMap[charType]}</div>`;
+        track.appendChild(card);
+    });
+    
+    updateCarousel();
+}
 
 function updateCarousel() {
     const track = document.getElementById('carousel-track');
-    const cardWidth = 400; // 280px card + 120px margins
+    const cardWidth = 400;
     const offset = -currentCharacterIndex * cardWidth;
     
     track.style.transform = `translateX(${offset}px)`;
@@ -1778,26 +1804,60 @@ function updateCarousel() {
 }
 
 function nextCharacter() {
-    currentCharacterIndex = (currentCharacterIndex + 1) % characters.length;
+    currentCharacterIndex++;
+    
+    // If we've gone past the end, reset to beginning position
+    if (currentCharacterIndex > 5) {
+        setTimeout(() => {
+            const track = document.getElementById('carousel-track');
+            track.style.transition = 'none';
+            currentCharacterIndex = 1; // Reset to first real card
+            updateCarousel();
+            setTimeout(() => {
+                track.style.transition = 'transform 0.5s ease';
+            }, 50);
+        }, 500);
+    }
+    
     updateCarousel();
 }
 
 function prevCharacter() {
-    currentCharacterIndex = (currentCharacterIndex - 1 + characters.length) % characters.length;
+    currentCharacterIndex--;
+    
+    // If we've gone past the beginning, reset to end position
+    if (currentCharacterIndex < 1) {
+        setTimeout(() => {
+            const track = document.getElementById('carousel-track');
+            track.style.transition = 'none';
+            currentCharacterIndex = 5; // Reset to last real card
+            updateCarousel();
+            setTimeout(() => {
+                track.style.transition = 'transform 0.5s ease';
+            }, 50);
+        }, 500);
+    }
+    
     updateCarousel();
 }
 
-// Touch/swipe support for mobile
+// Touch/swipe support
 let startX = 0;
 let endX = 0;
 
-document.getElementById('carousel-track').addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-});
+document.addEventListener('DOMContentLoaded', () => {
+    initializeCarousel();
+    
+    const track = document.getElementById('carousel-track');
+    
+    track.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+    });
 
-document.getElementById('carousel-track').addEventListener('touchend', (e) => {
-    endX = e.changedTouches[0].clientX;
-    handleSwipe();
+    track.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].clientX;
+        handleSwipe();
+    });
 });
 
 function handleSwipe() {
@@ -1806,17 +1866,12 @@ function handleSwipe() {
     
     if (Math.abs(diff) > swipeThreshold) {
         if (diff > 0) {
-            nextCharacter(); // Swipe left
+            nextCharacter();
         } else {
-            prevCharacter(); // Swipe right
+            prevCharacter();
         }
     }
 }
-
-// Initialize carousel
-document.addEventListener('DOMContentLoaded', () => {
-    updateCarousel();
-});
 
 </script>
 </body>
