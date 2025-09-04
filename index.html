@@ -890,16 +890,19 @@ async fetchCollectionFromAPI() {
     try {
         console.log('Fetching collection via DAS API...');
         
-        // Correct Helius DAS API endpoint
-        const response = await fetch(`https://api.helius.xyz/v0/das/searchAssets?api-key=${HELIUS_API_KEY}`, {
+        // Correct Helius DAS API - JSON-RPC format
+        const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                grouping: ["collection", this.collectionAddress],
-                page: 1,
-                limit: 1000,
-                displayOptions: {
-                    showFungible: false
+                jsonrpc: '2.0',
+                id: 'my-id',
+                method: 'getAssetsByGroup',
+                params: {
+                    groupKey: 'collection',
+                    groupValue: this.collectionAddress,
+                    page: 1,
+                    limit: 1000
                 }
             })
         });
@@ -909,9 +912,9 @@ async fetchCollectionFromAPI() {
         }
 
         const data = await response.json();
-        console.log(`DAS API returned ${data.items?.length || 0} items`);
+        console.log(`DAS API returned ${data.result?.items?.length || 0} items`);
         this.debugAPIResponse(data);
-        this.processDASData(data);
+        this.processDASData(data.result);
         
     } catch (error) {
         console.error('DAS API failed:', error);
@@ -925,17 +928,19 @@ async tryCreatorSearch() {
     try {
         console.log('Trying creator-based search...');
         
-        // Search by creator with correct endpoint
-        const response = await fetch(`https://api.helius.xyz/v0/das/searchAssets?api-key=${HELIUS_API_KEY}`, {
+        // JSON-RPC format for creator search
+        const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                creatorAddress: "DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny",
-                creatorVerified: true,
-                page: 1,
-                limit: 1000,
-                displayOptions: {
-                    showFungible: false
+                jsonrpc: '2.0',
+                id: 'my-id',
+                method: 'getAssetsByCreator',
+                params: {
+                    creatorAddress: "DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny",
+                    onlyVerified: true,
+                    page: 1,
+                    limit: 1000
                 }
             })
         });
@@ -945,15 +950,15 @@ async tryCreatorSearch() {
         }
 
         const data = await response.json();
-        console.log(`Creator search returned ${data.items?.length || 0} total items`);
+        console.log(`Creator search returned ${data.result?.items?.length || 0} total items`);
         
         // Filter for your specific collection
-        const filtered = data.items?.filter(item => 
+        const filtered = data.result?.items?.filter(item => 
             item.content?.metadata?.symbol === 'ROC' ||
             item.content?.metadata?.name?.toLowerCase().includes('reapz')
         ) || [];
         
-        console.log(`Filtered to ${filtered.length} cReapZ from ${data.items?.length || 0} total DRiP NFTs`);
+        console.log(`Filtered to ${filtered.length} cReapZ from ${data.result?.items?.length || 0} total DRiP NFTs`);
         this.processDASData({ items: filtered });
         
     } catch (error) {
