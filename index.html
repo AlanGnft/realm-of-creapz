@@ -858,6 +858,103 @@ async connectWallet() {
     }
 }
 
+class CollectionManager {
+    constructor() {
+        this.collectionAddress = 'FYJLebVjL9obCoHUxKufFZfW7Yuq8hdLNbRp5qbhDy2G';
+        this.connection = new solanaWeb3.Connection('https://rpc.ankr.com/solana');
+        this.allNFTs = [];
+        this.categorizedNFTs = {
+            creaperz: [],
+            dingbatz: [],
+            lilcreapz: [],
+            grimz: []
+        };
+    }
+
+    async loadCollectionData() {
+        try {
+            console.log('Loading collection data...');
+            // For now, let's use a simpler API approach
+            await this.fetchCollectionFromAPI();
+            this.categorizeNFTs();
+            this.updateCharacterPages();
+        } catch (error) {
+            console.error('Failed to load collection:', error);
+            this.loadMockData(); // Fallback to mock data
+        }
+    }
+
+    async fetchCollectionFromAPI() {
+        // We can use Helius or similar service for collection data
+        // For now, let's create mock data based on your description
+        this.loadMockData();
+    }
+
+    loadMockData() {
+        // Mock data representing your collection
+        this.allNFTs = [
+            { name: 'cReaperZ #001', class: 'creaperz', image: 'mock-image-1.jpg', traits: { rarity: 'Common' }},
+            { name: 'cReaperZ #045', class: 'creaperz', image: 'mock-image-2.jpg', traits: { rarity: 'Rare' }},
+            { name: 'DingbatZ #012', class: 'dingbatz', image: 'mock-image-3.jpg', traits: { rarity: 'Epic' }},
+            { name: 'DingbatZ #089', class: 'dingbatz', image: 'mock-image-4.jpg', traits: { rarity: 'Common' }},
+            { name: 'Lil cReapZ #003', class: 'lilcreapz', image: 'mock-image-5.jpg', traits: { rarity: 'Legendary' }},
+            { name: 'GrimZ #067', class: 'grimz', image: 'mock-image-6.jpg', traits: { rarity: 'Rare' }},
+            // Add more mock data...
+        ];
+    }
+
+    categorizeNFTs() {
+        this.allNFTs.forEach(nft => {
+            const className = nft.class.toLowerCase();
+            if (this.categorizedNFTs[className]) {
+                this.categorizedNFTs[className].push(nft);
+            }
+        });
+        
+        console.log('Categorized NFTs:', this.categorizedNFTs);
+    }
+
+    updateCharacterPages() {
+        // Update character cards with collection counts
+        Object.keys(this.categorizedNFTs).forEach(className => {
+            const count = this.categorizedNFTs[className].length;
+            this.updateCharacterCard(className, count);
+        });
+    }
+
+    updateCharacterCard(className, count) {
+        const cardSelector = `.${className === 'lilcreapz' ? 'lil-creap' : className.slice(0, -1)}`;
+        const card = document.querySelector(cardSelector);
+        
+        if (card) {
+            // Add count badge to character card
+            let badge = card.querySelector('.collection-count');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'collection-count';
+                badge.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(0, 255, 255, 0.8);
+                    color: black;
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    font-weight: bold;
+                    z-index: 10;
+                `;
+                card.appendChild(badge);
+            }
+            badge.textContent = `${count} NFTs`;
+        }
+    }
+
+    getCharacterNFTs(characterType) {
+        return this.categorizedNFTs[characterType] || [];
+    }
+}
+
 // Initialize wallet manager
 const walletManager = new SolanaWalletManager();
 
@@ -960,7 +1057,80 @@ function openHelp() {
 }
 
 function exploreCharacter(character) {
-    alert(`Entering the ${character} realm...\nThis would show character-specific lore, artwork, and interactive content.`);
+    const nfts = collectionManager.getCharacterNFTs(character + 's');
+    
+    if (nfts.length > 0) {
+        showCharacterGallery(character, nfts);
+    } else {
+        alert(`No ${character} found in collection yet. Check back later!`);
+    }
+}
+
+function showCharacterGallery(characterType, nfts) {
+    // Create gallery modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 3000;
+        overflow-y: auto;
+        padding: 20px;
+    `;
+
+    const content = `
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="color: #00ffff; font-family: 'Creepster', cursive; font-size: 2rem;">
+                    ${characterType} Collection (${nfts.length} NFTs)
+                </h2>
+                <button onclick="this.closest('.modal').remove()" style="
+                    background: #ff4444;
+                    border: none;
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-family: 'Chiller', cursive;
+                    font-size: 1.1rem;
+                ">Close</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                ${nfts.map(nft => `
+                    <div style="
+                        background: rgba(0, 0, 0, 0.6);
+                        border: 2px solid #00ffff;
+                        border-radius: 10px;
+                        padding: 15px;
+                        text-align: center;
+                        color: white;
+                    ">
+                        <div style="
+                            width: 100%;
+                            height: 200px;
+                            background: linear-gradient(45deg, #333, #555);
+                            border-radius: 8px;
+                            margin-bottom: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        ">
+                            Image Placeholder<br><small>(${nft.name})</small>
+                        </div>
+                        <h3 style="margin: 10px 0; font-family: 'Chiller', cursive;">${nft.name}</h3>
+                        <p style="color: #ccc;">Rarity: ${nft.traits.rarity}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    modal.className = 'modal';
+    modal.innerHTML = content;
+    document.body.appendChild(modal);
 }
 
 function openLore() {
@@ -991,6 +1161,13 @@ setInterval(() => {
     }
 }, 3000);
 
+// Initialize collection manager
+const collectionManager = new CollectionManager();
+
+// Load collection data when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    collectionManager.loadCollectionData();
+});
 
 </script>
 </body>
