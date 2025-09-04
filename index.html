@@ -993,7 +993,7 @@ processDASData(data) {
                 
                 this.allNFTs.push({
                     name: metadata.name || 'Unknown cReapZ',
-                    class: classAttr ? classAttr.value.toLowerCase() : 'unknown',
+                    class: classAttr ? this.normalizeClassValue(classAttr.value) : 'unknown',
                     image: item.content?.links?.image || metadata.image || '',
                     traits: traits
                 });
@@ -1006,6 +1006,19 @@ processDASData(data) {
     if (this.allNFTs.length === 0) {
         console.log('No NFTs found, using mock data');
         this.loadMockData();
+    }
+}
+
+normalizeClassValue(classValue) {
+    const normalized = classValue.toLowerCase().trim();
+    
+    // Handle the specific case mappings from your actual trait values
+    switch(normalized) {
+        case 'dingbatz': return 'dingbatz';
+        case 'creaperz': return 'creaperz'; 
+        case 'lil creapz': return 'lilcreapz';  // Handle the space
+        case 'grimz': return 'grimz';
+        default: return 'unknown';
     }
 }
 
