@@ -558,37 +558,34 @@ class SolanaWalletManager {
 
 async connectWallet() {
     try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
         let selectedWallet = null;
         
         if (window.phantom?.solana) {
             selectedWallet = window.phantom.solana;
         } else if (window.solana?.isPhantom) {
             selectedWallet = window.solana;
-        } else if (window.solana) {
-            selectedWallet = window.solana;
         } else {
-            alert('Phantom wallet not detected. Please make sure it is installed and unlocked.');
+            alert('Phantom wallet not detected.');
             return null;
         }
 
+        // This should trigger the transaction signing popup
         const response = await selectedWallet.connect();
+        
         this.wallet = selectedWallet;
         this.isConnected = true;
         
+        console.log('Wallet connected:', response.publicKey.toString());
         this.updateWalletUI(response.publicKey.toString());
+        
+        // Check for CNFTs after successful connection
         await this.checkForCNFTs(response.publicKey.toString());
         
         return response.publicKey.toString();
         
     } catch (error) {
         console.error('Connection failed:', error);
-        if (error.code === 4001) {
-            alert('Connection was rejected by user.');
-        } else {
-            alert('Failed to connect: ' + error.message);
-        }
+        alert('Failed to connect: ' + error.message);
         return null;
     }
 }
@@ -730,17 +727,10 @@ async connectWallet() {
         
         if (walletAddress && this.isConnected) {
             connectButton.textContent = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
-            connectButton.onclick = (e) => {
-                e.preventDefault();
-                // Show options instead of auto-disconnect
-                this.showWalletOptions(walletAddress);
-            };
+            connectButton.onclick = () => this.disconnectWallet();
         } else {
             connectButton.textContent = 'Connect Wallet';
-            connectButton.onclick = (e) => {
-                e.preventDefault();
-                this.connectWallet();
-            };
+            connectButton.onclick = () => this.connectWallet();
         }
     }
 
@@ -1006,20 +996,6 @@ setInterval(() => {
     }
 }, 3000);
 
-// Try to auto-connect if wallet was previously connected
-window.addEventListener('load', async () => {
-    try {
-        if (window.phantom?.solana?.isConnected) {
-            const response = await window.phantom.solana.connect({ onlyIfTrusted: true });
-            walletManager.wallet = window.phantom.solana;
-            walletManager.isConnected = true;
-            walletManager.updateWalletUI(response.publicKey.toString());
-            await walletManager.checkForCNFTs(response.publicKey.toString());
-        }
-    } catch (error) {
-        console.log('Auto-connect failed:', error);
-    }
-});
 
 </script>
 </body>
