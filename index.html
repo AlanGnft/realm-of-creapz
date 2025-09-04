@@ -885,38 +885,113 @@ class CollectionManager {
     }
 
 async fetchCollectionFromAPI() {
-    try {
-        // Use Magic Eden API to get collection data
-        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${this.collectionAddress}/stats`);
-        
-        if (response.ok) {
-            const collectionStats = await response.json();
-            console.log('Collection stats:', collectionStats);
+    console.log('Attempting to fetch real collection data...');
+    
+    // Try different API services in order of reliability
+    const apiAttempts = [
+        () => this.tryHeliusAPI(),
+        () => this.tryMagicEdenAPI(), 
+        () => this.tryTensorAPI(),
+        () => this.tryDirectSolanaQuery()
+    ];
+    
+    for (const attempt of apiAttempts) {
+        try {
+            const result = await attempt();
+            if (result && result.length > 0) {
+                console.log(`Successfully fetched ${result.length} NFTs from API`);
+                this.processRealMetadata(result);
+                return;
+            }
+        } catch (error) {
+            console.log('API attempt failed:', error.message);
         }
+    }
+    
+    console.log('All API attempts failed, using mock data');
+    this.loadMockData();
+}
 
-        // Try Helius API for better metadata
-        const heliusResponse = await fetch('https://api.helius.xyz/v0/tokens/metadata', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+async tryHeliusAPI() {
+    // Helius has good NFT collection support
+    const response = await fetch('https://api.helius.xyz/v1/nft-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: {
+                accounts: [this.collectionAddress],
+                types: ['NFT_MINT']
             },
-            body: JSON.stringify({
-                mintAccounts: await this.getCollectionMints(),
-                includeOffChain: true,
-                disableCache: false
-            })
-        });
+            options: {
+                limit: 1000
+            }
+        })
+    });
+    
+    if (!response.ok) throw new Error('Helius API failed');
+    return await response.json();
+}
 
-        if (heliusResponse.ok) {
-            const metadata = await heliusResponse.json();
-            this.processRealMetadata(metadata);
-        } else {
-            throw new Error('API failed, using mock data');
-        }
+async tryMagicEdenAPI() {
+    // Magic Eden collection API
+    const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${this.collectionAddress}/listings`);
+    if (!response.ok) throw new Error('Magic Eden API failed');
+    return await response.json();
+}
+
+async tryTensorAPI() {
+    // Since you use Tensor, let's try their API
+    const response = await fetch(`https://api.tensor.so/graphql`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: `
+                query GetCollection($slug: String!) {
+                    collection(slug: $slug) {
+                        stats {
+                            numMints
+                        }
+                        mints {
+                            onchainId
+                            name
+                            imageUri
+                            attributes {
+                                trait
+                                value
+                            }
+                        }
+                    }
+                }
+            `,
+            variables: { slug: this.collectionAddress }
+        })
+    });
+    
+    if (!response.ok) throw new Error('Tensor API failed');
+    const data = await response.json();
+    return data.data?.collection?.mints || [];
+}
+
+async tryDirectSolanaQuery() {
+    // Direct query using your collection address
+    try {
+        const connection = new solanaWeb3.Connection('https://rpc.ankr.com/solana');
+        
+        // This is a simplified approach - get program accounts
+        const accounts = await connection.getProgramAccounts(
+            new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+            {
+                filters: [
+                    { dataSize: 165 }
+                ]
+            }
+        );
+        
+        console.log(`Found ${accounts.length} token accounts`);
+        return []; // This needs more complex metadata parsing
         
     } catch (error) {
-        console.log('API fetch failed, using mock data:', error);
-        this.loadMockData();
+        throw new Error('Direct Solana query failed: ' + error.message);
     }
 }
 
@@ -926,36 +1001,90 @@ async getCollectionMints() {
     return [];
 }
 
-processRealMetadata(metadataArray) {
-    this.allNFTs = metadataArray.map(item => {
-        const metadata = item.offChainMetadata || {};
-        const attributes = metadata.attributes || [];
-        
-        // Extract class from attributes
-        const classAttribute = attributes.find(attr => 
-            attr.trait_type && attr.trait_type.toLowerCase().includes('class')
-        );
-        
-        // Extract rarity
-        const rarityAttribute = attributes.find(attr => 
-            attr.trait_type === 'Rarity'
-        );
-
-        return {
-            name: metadata.name || 'Unknown cReapZ',
-            class: classAttribute ? classAttribute.value.toLowerCase() : 'unknown',
-            image: metadata.image || '',
-            traits: {
-                rarity: rarityAttribute ? rarityAttribute.value : 'Common',
-                ...attributes.reduce((acc, attr) => {
-                    if (attr.trait_type !== 'Rarity') {
-                        acc[attr.trait_type] = attr.value;
-                    }
-                    return acc;
-                }, {})
+processRealMetadata(apiData) {
+    console.log('Processing API data:', apiData);
+    this.debugAPIResponse(apiData);  // Add this line
+    
+    this.allNFTs = [];
+    
+    // Handle different API response formats
+    if (Array.isArray(apiData)) {
+        apiData.forEach(item => {
+            const nft = this.parseNFTFromAPI(item);
+            if (nft) {
+                this.allNFTs.push(nft);
             }
-        };
+        });
+    }
+    
+    console.log(`Processed ${this.allNFTs.length} NFTs from API`);
+    
+    if (this.allNFTs.length === 0) {
+        console.log('No valid NFTs found, falling back to mock data');
+        this.loadMockData();
+    }
+}
+
+parseNFTFromAPI(item) {
+    // Handle different API response structures
+    let name, attributes, image;
+    
+    // Tensor API format
+    if (item.name && item.attributes) {
+        name = item.name;
+        attributes = item.attributes;
+        image = item.imageUri || '';
+    }
+    // Magic Eden format
+    else if (item.token && item.token.name) {
+        name = item.token.name;
+        attributes = item.token.attributes || [];
+        image = item.token.image || '';
+    }
+    // Helius format
+    else if (item.metadata) {
+        name = item.metadata.name;
+        attributes = item.metadata.attributes || [];
+        image = item.metadata.image || '';
+    }
+    else {
+        return null;
+    }
+    
+    // Extract class and traits
+    const classAttr = attributes.find(attr => 
+        attr.trait_type === 'Class' || 
+        attr.trait === 'Class' ||
+        attr.key === 'Class'
+    );
+    
+    const traits = {};
+    attributes.forEach(attr => {
+        const key = attr.trait_type || attr.trait || attr.key;
+        const value = attr.value;
+        if (key && value) {
+            traits[key] = value;
+        }
     });
+    
+    return {
+        name: name || 'Unknown cReapZ',
+        class: classAttr ? classAttr.value.toLowerCase() : 'unknown',
+        image: image,
+        traits: traits
+    };
+}
+
+debugAPIResponse(data) {
+    console.log('=== API Response Debug ===');
+    console.log('Response type:', typeof data);
+    console.log('Is array:', Array.isArray(data));
+    if (Array.isArray(data) && data.length > 0) {
+        console.log('First item structure:', data[0]);
+        console.log('First item keys:', Object.keys(data[0]));
+    }
+    console.log('Full response preview:', JSON.stringify(data).slice(0, 500) + '...');
+    console.log('=== End Debug ===');
 }
 
     loadMockData() {
