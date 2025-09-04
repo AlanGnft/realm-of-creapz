@@ -1509,7 +1509,14 @@ function exploreCharacter(character) {
     
     const nfts = collectionManager.getCharacterNFTs(characterKey);
     console.log(`Opening ${character} gallery with ${nfts.length} NFTs from key: ${characterKey}`);
-    showCharacterGallery(character, nfts);
+    const displayNames = {
+        'creaper': 'cReaperZ',
+        'dingbat': 'DingbatZ', 
+        'lilcreap': 'Lil cReapZ',
+        'grim': 'GrimZ'
+    };
+
+showCharacterGallery(displayNames[character] || character, nfts);
 }
 
 function showCharacterGallery(characterType, nfts) {
@@ -1530,7 +1537,7 @@ function showCharacterGallery(characterType, nfts) {
         <div style="max-width: 1200px; margin: 0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h2 style="color: #00ffff; font-family: 'Spooky Ghoster', 'Creepster', cursive; font-size: 2.5rem; text-shadow: 0 0 10px #00ffff;">
-                    ${characterType.charAt(0).toUpperCase() + characterType.slice(1)} Collection
+                    ${characterType}
                 </h2>
                 <button onclick="this.closest('.modal').remove()" style="
                     background: linear-gradient(45deg, #ff4444, #cc3333);
@@ -1573,15 +1580,19 @@ function showCharacterGallery(characterType, nfts) {
                         margin-bottom: 15px;
                         position: relative;
                     ">
-                        ${nft.image ? '' : `
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #666;">
-                                <div style="font-size: 3rem; margin-bottom: 10px;">${getCharacterEmoji(characterType)}</div>
-                                <div style="font-size: 0.9rem;">Loading Image...</div>
-                            </div>
-                        `}
-                            <div style="font-size: 3rem; margin-bottom: 10px;">${getCharacterEmoji(characterType)}</div>
-                            <div style="font-size: 0.9rem;">Artwork Coming Soon</div>
-                            <div style="font-size: 0.8rem; margin-top: 5px;">${nft.name}</div>
+                        <div style="
+                            width: 100%;
+                            height: 220px;
+                            background-image: url('${nft.image}');
+                            background-size: contain;
+                            background-position: center;
+                            background-repeat: no-repeat;
+                            background-color: #1a1a1a;
+                            border: 2px solid rgba(0, 255, 255, 0.3);
+                            border-radius: 10px;
+                            margin-bottom: 15px;
+                            position: relative;
+                        ">
                         </div>
                         <h3 style="margin: 15px 0 10px 0; font-family: 'Chiller', cursive; font-size: 1.3rem; color: #00ffff;">${nft.name}</h3>
                         <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.9rem;">
