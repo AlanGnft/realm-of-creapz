@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realm of cReapZ</title>
+    <style>
+        @font-face {
+            font-family: 'Spooky Ghoster';
+            src: url('assets/fonts/spooky-ghoster.otf') format('opentype'),
+                url('assets/fonts/spooky-ghoster.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Chiller&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Chiller', cursive;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a1a, #2a2a2a, #0a0a0a);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease-in-out infinite;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #333, #555);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .soulz-balance {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            font-family: 'Chiller', cursive;
+            font-size: 1.1rem;
+        }
+
+        .soulz-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            animation: pulse-soulz 2s infinite;
+        }
+
+        @keyframes pulse-soulz {
+            0%, 100% { box-shadow: 0 0 5px #00ffff; }
+            50% { box-shadow: 0 0 15px #00ffff, 0 0 25px #00ffff; }
+        }
+
+        .soulz-count {
+            color: #00ffff;
+            font-weight: bold;
+            text-shadow: 0 0 8px #00ffff;
+        }
+
+        .connect-wallet {
+            background: linear-gradient(45deg, #8b5cf6, #a855f7, #9333ea);
+            border: 2px solid #a855f7;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Chiller', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .connect-wallet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+        }
+
+        .menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .hamburger span {
+            width: 18px;
+            height: 2px;
+            background: white;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .realm-title {
+            font-family: 'Spooky Ghoster', 'Creepster', cursive;
+            font-size: 4rem;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+            margin-bottom: 1rem;
+            animation: pulse 3s infinite;
+            letter-spacing: 3px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff; }
+            50% { text-shadow: 0 0 30px #00ffff, 0 0 60px #00ffff, 0 0 80px #00ffff; }
+        }
+
+        .tagline {
+            font-size: 1.8rem;
+            color: #ccc;
+            margin-bottom: 2rem;
+            animation: flicker 4s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Artwork & Lore Section */
+        .artwork-lore {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 4rem 0;
+            align-items: center;
+        }
+
+        .artwork-showcase {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .artwork-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #333, #555);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .lore-intro {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .lore-title {
+            font-family: 'Creepster', cursive;
+            font-size: 2rem;
+            color: #00ffff;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .lore-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        /* Navigation Sections */
+        .nav-section {
+            margin: 4rem 0;
+        }
+
+        .section-title {
+            font-family: 'Creepster', cursive;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Character Grid */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .character-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            padding: 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .character-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .creaper {
+            background-image: url('assets/icons/creaperz.png');
+        }
+
+        .dingbat {
+            background-image: url('assets/icons/dingbatz.png');
+        }
+
+        .lil-creap {
+            background-image: url('assets/icons/lil_creapz.png');
+        }
+
+        .grim {
+            background-image: url('assets/icons/grimz.png');
+        }
+
+        .character-icon {
+            display: none;
+        }
+
+        .character-name {
+            font-family: 'Creepster', cursive;
+            font-size: 1.5rem;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 3;
+            padding: 1rem;
+            margin: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            border-radius: 0 0 12px 12px;
+            text-align: center;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .action-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            color: white;
+            font-family: 'Creepster', cursive;
+            font-size: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .action-btn:hover::before {
+            opacity: 1;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            .header-right {
+                gap: 0.5rem;
+            }
+            .connect-wallet {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            .soulz-balance {
+                padding: 6px 12px;
+                font-size: 1rem;
+            }
+            .main-content {
+                padding: 0 1rem;
+            }
+            .realm-title {
+                font-size: 2.5rem;
+            }
+            .tagline {
+                font-size: 1.2rem;
+            }
+            .artwork-lore {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+<script src="https://unpkg.com/@solana/wallet-adapter-base@latest/lib/index.iife.js"></script>
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <img src="assets/icons/logo.png" alt="cReapZ Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+        </div>
+        <div class="header-right">
+            <div class="soulz-balance">
+                <div class="soulz-icon">
+                    <img src="assets/icons/soulz.png" alt="SoulZ" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                </div>
+                <span class="soulz-count" id="soulzBalance">247</span>
+            </div>
+            <button class="connect-wallet" onclick="connectWallet()">
+                Connect Wallet
+            </button>
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="realm-title">REALM OF cREAPZ</h1>
+            <p class="tagline">Where Chaos Reigns & SoulZ Flow</p>
+        </section>
+
+        <!-- Artwork & Lore Introduction -->
+        <section class="artwork-lore">
+        <div class="artwork-showcase">
+            <img src="assets/icons/hero.png" alt="Featured cReapZ Artwork" style="width: 100%; height: 100%; max-height: 350px; object-fit: cover; border-radius: 15px; border: 3px solid #00ffff; box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);">
+        </div>
+            <div class="lore-intro">
+                <h2 class="lore-title">The Origin</h2>
+                <p class="lore-text">
+                    In the depths of digital chaos, the cReapZ emerged as harbingers of a new realm. 
+                    Powered by the mystical energy of SoulZ, these entities maintain the delicate balance 
+                    between order and pandemonium. The cReaperZ wield this power while their loyal 
+                    DingbatZ companions scout and retrieve the precious SoulZ that fuel their chaotic reign.
+                </p>
+            </div>
+        </section>
+
+        <!-- Character Navigation -->
+        <section class="nav-section">
+            <h2 class="section-title">The cReapZ</h2>
+            <div class="character-grid">
+                <div class="character-card creaper" onclick="exploreCharacter('creaper')">
+                    <div class="character-icon">💀</div>
+                    <div class="character-name">cReaperZ</div>
+                </div>
+                <div class="character-card dingbat" onclick="exploreCharacter('dingbat')">
+                    <div class="character-icon">🦇</div>
+                    <div class="character-name">DingbatZ</div>
+                </div>
+                <div class="character-card lil-creap" onclick="exploreCharacter('lilcreap')">
+                    <div class="character-icon">👻</div>
+                    <div class="character-name">Lil cReapZ</div>
+                </div>
+                <div class="character-card grim" onclick="exploreCharacter('grim')">
+                    <div class="character-icon">⚡</div>
+                    <div class="character-name">GrimZ</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="nav-section">
+            <div class="action-buttons">
+                <a href="#" class="action-btn" onclick="openLore()">
+                    <span class="btn-icon">📚</span>
+                    <span class="btn-text">Lore</span>
+                </a>
+                <a href="#" class="action-btn" onclick="openSoulzConduit()">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">SoulZ Conduit</span>
+                </a>
+                <a href="#" class="action-btn" onclick="openDrip()">
+                    <span class="btn-icon">🎨</span>
+                    <span class="btn-text">cReapZ on DRiP</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+<script>
+class SolanaWalletManager {
+    constructor() {
+        this.wallet = null;
+        this.connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com');
+        this.isConnected = false;
+        
+        // YOUR COLLECTION DETAILS - UPDATE THESE
+        this.collectionSymbol = 'ROC'; // Change to your actual symbol
+        this.creatorAddress = 'FYJLebVjL9obCoHUxKufFZfW7Yuq8hdLNbRp5qbhDy2G'; // Your creator wallet
+    }
+
+    
+
+async connectWallet() {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        let selectedWallet = null;
+        
+        if (window.phantom?.solana) {
+            selectedWallet = window.phantom.solana;
+        } else if (window.solana?.isPhantom) {
+            selectedWallet = window.solana;
+        } else if (window.solana) {
+            selectedWallet = window.solana;
+        } else {
+            alert('Phantom wallet not detected. Please make sure it is installed and unlocked.');
+            return null;
+        }
+
+        const response = await selectedWallet.connect();
+        this.wallet = selectedWallet;
+        this.isConnected = true;
+        
+        this.updateWalletUI(response.publicKey.toString());
+        await this.checkForCNFTs(response.publicKey.toString());
+        
+        return response.publicKey.toString();
+        
+    } catch (error) {
+        console.error('Connection failed:', error);
+        if (error.code === 4001) {
+            alert('Connection was rejected by user.');
+        } else {
+            alert('Failed to connect: ' + error.message);
+        }
+        return null;
+    }
+}
+
+
+    async disconnectWallet() {
+        try {
+            if (this.wallet) {
+                await this.wallet.disconnect();
+            }
+            this.wallet = null;
+            this.isConnected = false;
+            this.updateWalletUI(null);
+            this.removeCNFTStatus();
+            console.log('Wallet disconnected');
+        } catch (error) {
+            console.error('Disconnect failed:', error);
+        }
+    }
+
+    async checkForCNFTs(walletAddress) {
+        try {
+            const publicKey = new solanaWeb3.PublicKey(walletAddress);
+            
+            const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(publicKey, {
+                programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+            });
+
+            let ownedCNFTs = [];
+            
+            for (const tokenAccount of tokenAccounts.value) {
+                const tokenData = tokenAccount.account.data.parsed.info;
+                
+                if (tokenData.tokenAmount.uiAmount === 1 && tokenData.tokenAmount.decimals === 0) {
+                    const metadata = await this.getNFTMetadata(tokenData.mint);
+                    
+                    if (metadata && this.isFromYourCollection(metadata)) {
+                        ownedCNFTs.push({
+                            mint: tokenData.mint,
+                            name: metadata.name || 'cReapZ NFT',
+                            symbol: metadata.symbol || 'cREAPZ'
+                        });
+                    }
+                }
+            }
+
+            console.log(`Found ${ownedCNFTs.length} CNFTs from your collection`);
+            this.updateCNFTStatus(ownedCNFTs);
+            
+            return ownedCNFTs;
+            
+        } catch (error) {
+            console.error('CNFT verification failed:', error);
+            this.updateCNFTStatus([]);
+            return [];
+        }
+    }
+
+    async getNFTMetadata(mintAddress) {
+        try {
+            // Simplified metadata check - just return basic info for now
+            return {
+                name: 'cReapZ NFT',
+                symbol: this.collectionSymbol
+            };
+        } catch (error) {
+            return null;
+        }
+    }
+
+    isFromYourCollection(metadata) {
+        // Simple symbol check for now
+        return metadata.symbol && metadata.symbol.includes('cREAPZ');
+    }
+
+    updateWalletUI(walletAddress) {
+        const connectButton = document.querySelector('.connect-wallet');
+        
+        if (walletAddress) {
+            connectButton.textContent = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+            connectButton.onclick = () => this.disconnectWallet();
+        } else {
+            connectButton.textContent = 'Connect Wallet';
+            connectButton.onclick = () => this.connectWallet();
+        }
+    }
+
+    updateCNFTStatus(ownedCNFTs) {
+        if (ownedCNFTs.length > 0) {
+            this.showHolderBenefits(ownedCNFTs);
+            this.applyCNFTBenefits(ownedCNFTs.length);
+        } else {
+            this.removeCNFTStatus();
+        }
+    }
+
+    showHolderBenefits(cnfts) {
+        this.removeCNFTStatus(); // Remove existing status first
+        
+        const holderStatus = document.createElement('div');
+        holderStatus.id = 'holder-status';
+        holderStatus.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: 'Chiller', cursive;
+            z-index: 1000;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        `;
+        
+        holderStatus.innerHTML = `
+            <div style="color: #00ffff; font-weight: bold; margin-bottom: 10px;">
+                CNFT Holder Verified!
+            </div>
+            <div>You own ${cnfts.length} cReapZ CNFT${cnfts.length > 1 ? 's' : ''}</div>
+            <div style="margin-top: 10px; font-size: 0.9em;">
+                • 20% SoulZ Conduit discount<br>
+                • Exclusive holder content<br>
+                • ${Math.floor(cnfts.length * 10)}% SoulZ bonus
+            </div>
+        `;
+        
+        document.body.appendChild(holderStatus);
+    }
+
+    removeCNFTStatus() {
+        const existing = document.getElementById('holder-status');
+        if (existing) {
+            existing.remove();
+        }
+        window.cnftHolderStatus = null;
+    }
+
+    applyCNFTBenefits(cnftCount) {
+        window.cnftHolderStatus = {
+            isHolder: true,
+            cnftCount: cnftCount,
+            discountRate: 0.2,
+            soulzMultiplier: 1 + (cnftCount * 0.1)
+        };
+        
+        console.log('CNFT benefits applied:', window.cnftHolderStatus);
+    }
+}
+
+// Initialize wallet manager
+const walletManager = new SolanaWalletManager();
+
+
+
+// Connect wallet function
+function connectWallet() {
+    walletManager.connectWallet();
+}
+
+// Keep existing functions
+function toggleMenu() {
+    alert('Navigation menu would open here - sections, settings, etc.');
+}
+
+function exploreCharacter(character) {
+    alert(`Entering the ${character} realm...\nThis would show character-specific lore, artwork, and interactive content.`);
+}
+
+function openLore() {
+    alert('Opening the Lore archive...\nThis would contain all documented stories, character backgrounds, and realm history.');
+}
+
+function openSoulzConduit() {
+    alert('Accessing the SoulZ Conduit...\nThis would open the rewards/vending machine interface we created!');
+}
+
+function openDrip() {
+    window.open('https://drip.haus', '_blank');
+}
+
+// Auto-increment SoulZ for demo
+let currentSoulz = 247;
+setInterval(() => {
+    if (Math.random() > 0.9) {
+        let increment = Math.floor(Math.random() * 5) + 1;
+        
+        // Apply CNFT holder multiplier if applicable
+        if (window.cnftHolderStatus && window.cnftHolderStatus.soulzMultiplier) {
+            increment = Math.floor(increment * window.cnftHolderStatus.soulzMultiplier);
+        }
+        
+        currentSoulz += increment;
+        document.getElementById('soulzBalance').textContent = currentSoulz;
+    }
+}, 3000);
+
+
+</script>
+</body>
+</html>
