@@ -273,7 +273,7 @@
 
 .carousel-container {
     position: relative;
-    width: 600px;
+    width: min(600px, 90vw);
     height: 100%;
     overflow: hidden;
     border-radius: 20px;
@@ -391,35 +391,7 @@
     right: 20px;
 }
 
-@media (max-width: 768px) {
-    .carousel-container {
-        width: 90vw;
-        max-width: 380px;
-        transform: translateX(-40px); /* Shift left to better center on mobile */
-    }
-    
-    .character-card {
-        transform: scale(0.8); /* Make cards 20% smaller on mobile */
-    }
-    
-    .character-card.center {
-        transform: scale(0.9); /* Center card slightly larger but still smaller than desktop */
-    }
-    
-    .carousel-nav {
-        width: 35px;
-        height: 35px;
-        font-size: 1.1rem;
-    }
-    
-    .carousel-nav.prev {
-        left: 5px;
-    }
-    
-    .carousel-nav.next {
-        right: 5px;
-    }
-}
+
 
         .character-card {
             background: rgba(0, 0, 0, 0.6);
@@ -1825,11 +1797,12 @@ function initializeCarousel() {
 
 function updateCarousel() {
     const track = document.getElementById('carousel-track');
-    const cardWidth = 400; // Card width including margins
-    const containerWidth = 600; // Container width
+    const container = document.querySelector('.carousel-container');
+    const containerWidth = container.offsetWidth;
+    const cardWidth = 400;
     
     // Calculate offset to center the current card
-    const centerPosition = (containerWidth - cardWidth) / 2; // 100px
+    const centerPosition = (containerWidth - 280) / 2;
     const offset = -(currentCharacterIndex * cardWidth) + centerPosition;
     
     track.style.transform = `translateX(${offset}px)`;
