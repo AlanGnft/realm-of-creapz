@@ -532,8 +532,7 @@
             background: rgba(0, 0, 0, 0.7);
             border: 3px solid #00ffff;
             border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
+            padding: 1.5rem 2rem;
             cursor: pointer;
             transition: all 0.4s ease;
             text-decoration: none;
@@ -543,6 +542,38 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            min-height: 80px;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-shrink: 0;
+        }
+
+        .btn-icon.lore {
+            background-image: url('assets/icons/lore-icon.png');
+        }
+
+        .btn-icon.soulz {
+            background-image: url('assets/icons/soulz-icon.png');
+        }
+
+        .btn-icon.drip {
+            background-image: url('assets/icons/drip-icon.png');
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 2;
+            margin: 0;
         }
 
         .action-btn::before {
@@ -724,15 +755,15 @@
         <section class="nav-section">
             <div class="action-buttons">
                 <a href="#" class="action-btn" onclick="openLore()">
-                    <span class="btn-icon">📚</span>
+                    <div class="btn-icon lore"></div>
                     <span class="btn-text">Lore</span>
                 </a>
                 <a href="#" class="action-btn" onclick="openSoulzConduit()">
-                    <span class="btn-icon">⚡</span>
+                    <div class="btn-icon soulz"></div>
                     <span class="btn-text">SoulZ Conduit</span>
                 </a>
                 <a href="#" class="action-btn" onclick="openDrip()">
-                    <span class="btn-icon">🎨</span>
+                    <div class="btn-icon drip"></div>
                     <span class="btn-text">cReapZ on DRiP</span>
                 </a>
             </div>
