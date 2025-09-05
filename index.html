@@ -60,11 +60,10 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         }
 
-        .header-center {
-    flex: 1;
+        .header-left {
     display: flex;
-    justify-content: center;
     align-items: center;
+    gap: 1rem;
 }
 
 .header-title {
@@ -82,7 +81,7 @@
 }
 
 @media (max-width: 768px) {
-    .header-center {
+    .header-title {
         display: none;
     }
 }
@@ -683,10 +682,10 @@
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="logo">
-            <img src="assets/icons/logo.png" alt="cReapZ Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-        </div>
-        <div class="header-center">
+        <div class="header-left">
+            <div class="logo">
+                <img src="assets/icons/logo.png" alt="cReapZ Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
             <h1 class="header-title">REALM OF cREAPZ</h1>
         </div>
         <div class="header-right">
@@ -715,7 +714,7 @@
         <section class="hero-banner">
             <div class="hero-image-placeholder"></div>
             <div class="hero-content">
-                <div class="lore-intro">f
+                <div class="lore-intro">
                     <h2 class="lore-title">The Realm is...</h2>
                     <p class="lore-text">
                         A world between dimensions… strange, colorful, and most definitely cReapY. 
