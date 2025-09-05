@@ -393,12 +393,31 @@
 
 @media (max-width: 768px) {
     .carousel-container {
-        width: 100vw;
-        max-width: 600px;
+        width: 90vw;
+        max-width: 380px;
+        transform: translateX(-40px); /* Shift left to better center on mobile */
     }
     
-    .character-carousel {
-        padding: 0 20px;
+    .character-card {
+        transform: scale(0.8); /* Make cards 20% smaller on mobile */
+    }
+    
+    .character-card.center {
+        transform: scale(0.9); /* Center card slightly larger but still smaller than desktop */
+    }
+    
+    .carousel-nav {
+        width: 35px;
+        height: 35px;
+        font-size: 1.1rem;
+    }
+    
+    .carousel-nav.prev {
+        left: 5px;
+    }
+    
+    .carousel-nav.next {
+        right: 5px;
     }
 }
 
