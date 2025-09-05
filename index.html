@@ -201,6 +201,13 @@
     overflow: hidden;
 }
 
+@media (max-width: 768px) {
+    .hero-banner {
+        height: 350px;
+        margin-bottom: 2rem;
+    }
+}
+
 .hero-image-placeholder {
     position: absolute;
     top: 0;
@@ -224,12 +231,19 @@
 }
 
 .lore-intro {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.6);
     border: 2px solid rgba(0, 255, 255, 0.3);
     border-radius: 15px;
     padding: 2rem;
     max-width: 600px;
     backdrop-filter: blur(10px);
+}
+
+@media (max-width: 768px) {
+    .lore-intro {
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.7);
+    }
 }
 
 
@@ -250,11 +264,25 @@
             text-shadow: 0 0 10px #00ffff;
         }
 
+        @media (max-width: 768px) {
+            .lore-title {
+                font-size: 1.6rem;
+                margin-bottom: 0.8rem;
+            }
+        }
+
         .lore-text {
             font-size: 1.2rem;
             line-height: 1.6;
             color: #ddd;
             font-family: 'Arial', sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .lore-text {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
         }
 
         /* Navigation Sections */
