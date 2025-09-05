@@ -393,8 +393,15 @@
 
 @media (max-width: 768px) {
     .carousel-container {
-        width: 90vw;
-        max-width: 400px;
+        width: 320px; /* Fixed mobile width for consistent centering */
+    }
+    
+    .carousel-nav.prev {
+        left: 5px;
+    }
+    
+    .carousel-nav.next {
+        right: 5px;
     }
 }
 
@@ -1802,11 +1809,12 @@ function initializeCarousel() {
 
 function updateCarousel() {
     const track = document.getElementById('carousel-track');
-    const cardWidth = 400; // Card width including margins
-    const containerWidth = 600; // Container width
+    const isMobile = window.innerWidth <= 768;
+    const cardWidth = 400; // Keep card width consistent
+    const containerWidth = isMobile ? 320 : 600; // Different container widths
     
     // Calculate offset to center the current card
-    const centerPosition = (containerWidth - cardWidth) / 2; // 100px
+    const centerPosition = (containerWidth - 280) / 2; // Center the 280px card
     const offset = -(currentCharacterIndex * cardWidth) + centerPosition;
     
     track.style.transform = `translateX(${offset}px)`;
@@ -1821,6 +1829,11 @@ function updateCarousel() {
         }
     });
 }
+
+// Handle window resize/orientation change
+window.addEventListener('resize', () => {
+    setTimeout(updateCarousel, 100); // Small delay to ensure width is updated
+});
 
 
 function nextCharacter() {
