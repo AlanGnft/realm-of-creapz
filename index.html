@@ -288,6 +288,47 @@
     transform: translateX(-1100px); /* This will be overridden by JavaScript */
 }
 
+/* Mobile responsive carousel */
+@media (max-width: 768px) {
+    .character-carousel {
+        height: 300px;
+    }
+    
+    .carousel-container {
+        width: 90vw;
+        max-width: 350px;
+    }
+    
+    .carousel-track {
+        width: 2100px; /* 7 cards * 300px each for mobile */
+    }
+    
+    .character-card {
+        width: 220px;
+        height: 260px;
+        margin: 0 40px;
+    }
+    
+    .carousel-container::before,
+    .carousel-container::after {
+        width: 80px;
+    }
+    
+    .carousel-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .carousel-nav.prev {
+        left: 10px;
+    }
+    
+    .carousel-nav.next {
+        right: 10px;
+    }
+}
+
 .character-card {
     background: rgba(0, 0, 0, 0.6);
     border: 3px solid #00ffff;
@@ -1794,13 +1835,14 @@ function initializeCarousel() {
 
 function updateCarousel() {
     const track = document.getElementById('carousel-track');
-    const cardWidth = 400; // Card width including margins
-    const containerWidth = 600; // Container width
+    const isMobile = window.innerWidth <= 768;
+    
+    // Different sizing for mobile vs desktop
+    const cardWidth = isMobile ? 300 : 400; // Card width including margins
+    const containerWidth = isMobile ? Math.min(window.innerWidth * 0.9, 350) : 600;
     
     // Calculate offset to center the current card
-    // Center position should be: (containerWidth / 2) - (cardWidth / 2) = 100px from left edge
-    // For card at index 3 to be centered: -((3 * 400) - 100) = -1100px
-    const centerPosition = (containerWidth - cardWidth) / 2; // 100px
+    const centerPosition = (containerWidth - (isMobile ? 220 : 280)) / 2;
     const offset = -(currentCharacterIndex * cardWidth) + centerPosition;
     
     track.style.transform = `translateX(${offset}px)`;
@@ -1815,6 +1857,11 @@ function updateCarousel() {
         }
     });
 }
+
+// Handle window resize/orientation change
+window.addEventListener('resize', () => {
+    updateCarousel();
+});
 
 function nextCharacter() {
     currentCharacterIndex++;
