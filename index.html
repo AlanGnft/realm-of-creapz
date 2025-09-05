@@ -529,34 +529,37 @@
         }
 
         .action-btn {
-            background: rgba(0, 0, 0, 0.7);
-            border: 3px solid #00ffff;
-            border-radius: 15px;
-            padding: 1.5rem 2rem;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            text-decoration: none;
-            color: white;
-            font-family: 'Creepster', cursive;
-            font-size: 1.5rem;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            min-height: 80px;
-        }
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid #00ffff;
+    border-radius: 15px;
+    padding: 1.5rem 2rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    text-decoration: none;
+    color: white;
+    font-family: 'Creepster', cursive;
+    font-size: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 80px;
+    line-height: 1;
+}
 
-        .btn-icon {
-            width: 40px;
-            height: 40px;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            flex-shrink: 0;
-        }
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
 
         .btn-icon.lore {
             background-image: url('assets/icons/lore-icon.png');
@@ -571,10 +574,12 @@
         }
 
         .btn-text {
-            position: relative;
-            z-index: 2;
-            margin: 0;
-        }
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
 
         .action-btn::before {
             content: '';
