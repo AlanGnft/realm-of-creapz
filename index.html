@@ -282,16 +282,16 @@
 .carousel-track {
     display: flex;
     align-items: center;
-    width: 2800px; /* 7 cards * 400px each */
+    width: 2800px; /* Still 7 cards for infinite scroll */
     height: 100%;
     transition: transform 0.5s ease;
-    transform: translateX(-1100px); /* This will be overridden by JavaScript */
+    transform: translateX(-1100px);
 }
 
 /* Mobile grid alternative */
 @media (max-width: 768px) {
     .character-carousel {
-        display: none; /* Hide carousel on mobile */
+        display: none;
     }
     
     .character-grid-mobile {
@@ -309,6 +309,12 @@
         opacity: 1;
         transform: scale(1);
         border-radius: 15px;
+    }
+    
+    .character-grid-mobile .character-card:last-child {
+        grid-column: 1 / -1; /* Make 5th card span full width */
+        max-width: 50%;
+        margin: 0 auto;
     }
 }
 
@@ -478,6 +484,10 @@
 
         .grim {
             background-image: url('assets/icons/grimz.png');
+        }
+
+        .creapy-bitz {
+            background-image: url('assets/icons/creapy_bitz.gif');
         }
 
         .character-icon {
@@ -698,6 +708,9 @@
             </div>
             <div class="character-card grim" onclick="exploreCharacter('grim')">
                 <div class="character-name">GrimZ</div>
+            </div>
+            <div class="character-card creapy-bitz" onclick="exploreCharacter('creapy')">
+                <div class="character-name">cReapY bitZ</div>
             </div>
         </div>
 
@@ -1559,6 +1572,10 @@ const characterLore = {
     grim: {
         title: "GrimZ",
         lore: `The elemental forces of the Realm given form, GrimZ embody pure chaotic energy. Neither fully alive nor completely digital, they exist as living conduits of the Realm's most primal powers. When the balance tips too far toward order, the GrimZ emerge to restore the necessary chaos that keeps the Realm's energy flowing.`
+    },
+    creapy: {
+        title: "cReapY bitZ",
+        lore: `The unpredictable wildcards of the Realm, cReapY bitZ exist in a state of constant flux between order and chaos. These enigmatic entities possess fragmented consciousness that allows them to perceive multiple realities simultaneously. Their erratic nature makes them both powerful allies and dangerous variables in the cosmic balance of the Realm.`
     }
 };
 
@@ -1804,9 +1821,9 @@ const collectionManager = new CollectionManager();
 
 // Carousel functionality with infinite scroll
 let currentCharacterIndex = 1; // Start at position 1 (cReaperZ)
-const characters = ['creaper', 'dingbat', 'lilcreap', 'grim'];
+const characters = ['creaper', 'dingbat', 'lilcreap', 'grim', 'creapy'];
 
-// Create track with duplicates for infinite scroll
+// Update the initializeCarousel function:
 function initializeCarousel() {
     const track = document.getElementById('carousel-track');
     const originalCards = Array.from(track.children);
@@ -1814,20 +1831,21 @@ function initializeCarousel() {
     // Clear track
     track.innerHTML = '';
     
-    // Add cards in order: [grim, creaper, dingbat, lilcreap, grim, creaper, dingbat]
-    // This allows seamless infinite scrolling
-    const cardOrder = ['grim', 'creaper', 'dingbat', 'lilcreap', 'grim', 'creaper', 'dingbat'];
+    // Add cards in order for infinite scroll: [creapy, creaper, dingbat, lilcreap, grim, creapy, creaper]
+    const cardOrder = ['creapy', 'creaper', 'dingbat', 'lilcreap', 'grim', 'creapy', 'creaper'];
     const classMap = {
         'grim': 'grim',
         'creaper': 'creaper', 
         'dingbat': 'dingbat',
-        'lilcreap': 'lil-creap'
+        'lilcreap': 'lil-creap',
+        'creapy': 'creapy-bitz'
     };
     const nameMap = {
         'grim': 'GrimZ',
         'creaper': 'cReaperZ',
         'dingbat': 'DingbatZ', 
-        'lilcreap': 'Lil cReapZ'
+        'lilcreap': 'Lil cReapZ',
+        'creapy': 'cReapY bitZ'
     };
     
     cardOrder.forEach(charType => {
