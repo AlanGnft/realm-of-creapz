@@ -880,56 +880,66 @@ async connectWallet() {
         
         const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09';
         
-        // Use Helius DAS API to get assets by owner
-        const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                id: 'wallet-cnft-check',
-                method: 'getAssetsByOwner',
-                params: {
-                    ownerAddress: walletAddress,
-                    page: 1,
-                    limit: 1000
-                }
-            })
+        let allAssets = [];
+        let page = 1;
+        let hasMore = true;
+        
+        // Fetch all pages of assets
+        while (hasMore && page <= 10) { // Limit to 10 pages max for safety
+            console.log(`Fetching page ${page}...`);
+            
+            const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: `wallet-cnft-check-${page}`,
+                    method: 'getAssetsByOwner',
+                    params: {
+                        ownerAddress: walletAddress,
+                        page: page,
+                        limit: 1000
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Helius API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const pageAssets = data.result?.items || [];
+            
+            console.log(`Page ${page}: found ${pageAssets.length} assets`);
+            allAssets = allAssets.concat(pageAssets);
+            
+            // If we got less than 1000, we've reached the end
+            hasMore = pageAssets.length === 1000;
+            page++;
+        }
+        
+        console.log(`Total assets across all pages: ${allAssets.length}`);
+
+        // Filter specifically for cReapZ by name
+        const cReapZAssets = allAssets.filter(asset => {
+            const name = asset.content?.metadata?.name || '';
+            return name.toLowerCase().includes('creapz');
         });
 
-        if (!response.ok) {
-            throw new Error(`Helius API error: ${response.status}`);
-        }
+        console.log('=== cReapZ Assets Found ===');
+        console.log(`Found ${cReapZAssets.length} assets with "cReapZ" in name`);
 
-        const data = await response.json();
-        const allAssets = data.result?.items || [];
-        
-        console.log(`Found ${allAssets.length} total assets for wallet`);
-        
-        // Debug: Log all assets to understand structure
-console.log('Sample asset structure:', allAssets[0]);
+        cReapZAssets.forEach((asset, index) => {
+            console.log(`cReapZ ${index + 1}:`, {
+                name: asset.content?.metadata?.name,
+                symbol: asset.content?.metadata?.symbol,
+                collection: asset.grouping?.find(g => g.group_key === 'collection')?.group_value,
+                id: asset.id
+            });
+        });
 
-console.log(`Found ${allAssets.length} total assets for wallet`);
-
-// Filter specifically for cReapZ by name first
-const cReapZAssets = allAssets.filter(asset => {
-    const name = asset.content?.metadata?.name || '';
-    return name.toLowerCase().includes('creapz');
-});
-
-console.log('=== cReapZ Assets Found ===');
-console.log(`Found ${cReapZAssets.length} assets with "cReapZ" in name`);
-
-cReapZAssets.forEach((asset, index) => {
-    console.log(`cReapZ ${index + 1}:`, {
-        name: asset.content?.metadata?.name,
-        symbol: asset.content?.metadata?.symbol,
-        collection: asset.grouping?.find(g => g.group_key === 'collection')?.group_value,
-        id: asset.id
-    });
-});
-
-// Use the name-filtered results
-const ownedCNFTs = cReapZAssets;
+        // Use the name-filtered results
+        const ownedCNFTs = cReapZAssets;
 
         console.log(`Found ${ownedCNFTs.length} cReapZ CNFTs from ${allAssets.length} total assets`);
         
