@@ -910,43 +910,26 @@ console.log('Sample asset structure:', allAssets[0]);
 
 console.log(`Found ${allAssets.length} total assets for wallet`);
 
-// Add detailed logging before filtering
-console.log('=== Analyzing all assets for cReapZ ===');
-allAssets.forEach((asset, index) => {
-    const symbol = asset.content?.metadata?.symbol;
-    const name = asset.content?.metadata?.name;
-    const collection = asset.grouping?.find(g => g.group_key === 'collection')?.group_value;
-    const hasDRiPCreator = asset.creators?.some(creator => 
-        creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny'
-    );
-    
-    // Only log assets that might be relevant
-    if (symbol === 'ROC' || name?.toLowerCase().includes('reap') || collection === this.collectionAddress || hasDRiPCreator) {
-        console.log(`Asset ${index + 1}:`, {
-            name,
-            symbol,
-            collection,
-            hasDRiPCreator,
-            targetCollection: this.collectionAddress
-        });
-    }
+// Filter specifically for cReapZ by name first
+const cReapZAssets = allAssets.filter(asset => {
+    const name = asset.content?.metadata?.name || '';
+    return name.toLowerCase().includes('creapz');
 });
 
-// Filter for your collection
-const ownedCNFTs = allAssets.filter(asset => {
-    const isFromCollection = asset.grouping?.some(group => 
-        group.group_key === 'collection' && 
-        group.group_value === this.collectionAddress
-    );
-    
-    const isVerifiedDRiP = asset.creators?.some(creator => 
-        creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny'
-    );
-    
-    const hasCorrectSymbol = asset.content?.metadata?.symbol === 'ROC';
-    
-    return isFromCollection || (isVerifiedDRiP && hasCorrectSymbol);
+console.log('=== cReapZ Assets Found ===');
+console.log(`Found ${cReapZAssets.length} assets with "cReapZ" in name`);
+
+cReapZAssets.forEach((asset, index) => {
+    console.log(`cReapZ ${index + 1}:`, {
+        name: asset.content?.metadata?.name,
+        symbol: asset.content?.metadata?.symbol,
+        collection: asset.grouping?.find(g => g.group_key === 'collection')?.group_value,
+        id: asset.id
+    });
 });
+
+// Use the name-filtered results
+const ownedCNFTs = cReapZAssets;
 
         console.log(`Found ${ownedCNFTs.length} cReapZ CNFTs from ${allAssets.length} total assets`);
         
@@ -1050,16 +1033,10 @@ async getMyCollectionAssets(walletAddress) {
     const data = await response.json();
     const allAssets = data.result?.items || [];
     
-    // Pre-filter to only potential matches
+    // Filter only by name containing "cReapZ"
     return allAssets.filter(asset => {
-        const symbol = asset.content?.metadata?.symbol;
         const name = asset.content?.metadata?.name?.toLowerCase() || '';
-        const hasCollection = asset.grouping?.some(g => 
-            g.group_key === 'collection' && 
-            g.group_value === this.collectionAddress
-        );
-        
-        return symbol === 'ROC' || hasCollection || name.includes('reap');
+        return name.includes('creapz');
     });
 }
 
