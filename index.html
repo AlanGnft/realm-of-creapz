@@ -908,25 +908,37 @@ async connectWallet() {
         // Debug: Log all assets to understand structure
 console.log('Sample asset structure:', allAssets[0]);
 
-// Filter for your collection with stricter criteria
+// Filter for your collection with multiple detection methods
 const ownedCNFTs = allAssets.filter(asset => {
-    // Primary check: collection grouping (most reliable)
+    // Method 1: Collection grouping
     const isFromCollection = asset.grouping?.some(group => 
         group.group_key === 'collection' && 
         group.group_value === this.collectionAddress
     );
     
-    // Secondary check: verified DRiP creator + ROC symbol + name contains "reap"
+    // Method 2: DRiP creator + ROC symbol
     const isVerifiedDRiP = asset.creators?.some(creator => 
-        creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny' && 
-        creator.verified === true
+        creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny'
     );
-    
     const hasCorrectSymbol = asset.content?.metadata?.symbol === 'ROC';
+    
+    // Method 3: Name contains "reap" variants
     const nameContainsReap = asset.content?.metadata?.name?.toLowerCase().includes('reap');
     
-    // Must match collection OR all three secondary criteria
-    return isFromCollection || (isVerifiedDRiP && hasCorrectSymbol && nameContainsReap);
+    // Log assets that match any criteria for debugging
+    if (isFromCollection || (isVerifiedDRiP && hasCorrectSymbol) || nameContainsReap) {
+        console.log('Potential cReapZ:', {
+            name: asset.content?.metadata?.name,
+            symbol: asset.content?.metadata?.symbol,
+            isFromCollection,
+            isVerifiedDRiP,
+            hasCorrectSymbol,
+            nameContainsReap
+        });
+    }
+    
+    // Accept if any method matches
+    return isFromCollection || (isVerifiedDRiP && hasCorrectSymbol);
 });
 
         console.log(`Found ${ownedCNFTs.length} cReapZ CNFTs from ${allAssets.length} total assets`);
@@ -1930,25 +1942,7 @@ function refreshCNFTs() {
     }
 }
 
-function debugMyCollection() {
-    if (walletManager.isConnected && walletManager.wallet && walletManager.wallet.publicKey) {
-        console.log('=== DEBUG: cReapZ Collection Only ===');
-        
-        walletManager.getMyCollectionAssets(walletManager.wallet.publicKey.toString())
-            .then(assets => {
-                console.log(`Found ${assets.length} potential cReapZ assets`);
-                assets.forEach((asset, index) => {
-                    console.log(`cReapZ Asset ${index + 1}:`, {
-                        name: asset.content?.metadata?.name,
-                        symbol: asset.content?.metadata?.symbol,
-                        collection: asset.grouping?.find(g => g.group_key === 'collection')?.group_value,
-                        creators: asset.creators?.map(c => ({address: c.address, verified: c.verified})),
-                        id: asset.id
-                    });
-                });
-            });
-    }
-}
+
 
 function openSettings() {
     document.getElementById('dropdown-menu')?.remove();
@@ -2133,6 +2127,29 @@ function handleSwipe() {
         }
     }
 }
+
+// Debug function for testing collection detection
+window.debugMyCollection = function() {
+    if (walletManager.isConnected && walletManager.wallet && walletManager.wallet.publicKey) {
+        console.log('=== DEBUG: cReapZ Collection Only ===');
+        
+        walletManager.getMyCollectionAssets(walletManager.wallet.publicKey.toString())
+            .then(assets => {
+                console.log(`Found ${assets.length} potential cReapZ assets`);
+                assets.forEach((asset, index) => {
+                    console.log(`cReapZ Asset ${index + 1}:`, {
+                        name: asset.content?.metadata?.name,
+                        symbol: asset.content?.metadata?.symbol,
+                        collection: asset.grouping?.find(g => g.group_key === 'collection')?.group_value,
+                        creators: asset.creators?.map(c => ({address: c.address, verified: c.verified})),
+                        id: asset.id
+                    });
+                });
+            });
+    } else {
+        console.log('Wallet not connected');
+    }
+};
 
 </script>
 </body>
