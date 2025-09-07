@@ -908,36 +908,43 @@ async connectWallet() {
         // Debug: Log all assets to understand structure
 console.log('Sample asset structure:', allAssets[0]);
 
-// Filter for your collection with multiple detection methods
+console.log(`Found ${allAssets.length} total assets for wallet`);
+
+// Add detailed logging before filtering
+console.log('=== Analyzing all assets for cReapZ ===');
+allAssets.forEach((asset, index) => {
+    const symbol = asset.content?.metadata?.symbol;
+    const name = asset.content?.metadata?.name;
+    const collection = asset.grouping?.find(g => g.group_key === 'collection')?.group_value;
+    const hasDRiPCreator = asset.creators?.some(creator => 
+        creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny'
+    );
+    
+    // Only log assets that might be relevant
+    if (symbol === 'ROC' || name?.toLowerCase().includes('reap') || collection === this.collectionAddress || hasDRiPCreator) {
+        console.log(`Asset ${index + 1}:`, {
+            name,
+            symbol,
+            collection,
+            hasDRiPCreator,
+            targetCollection: this.collectionAddress
+        });
+    }
+});
+
+// Filter for your collection
 const ownedCNFTs = allAssets.filter(asset => {
-    // Method 1: Collection grouping
     const isFromCollection = asset.grouping?.some(group => 
         group.group_key === 'collection' && 
         group.group_value === this.collectionAddress
     );
     
-    // Method 2: DRiP creator + ROC symbol
     const isVerifiedDRiP = asset.creators?.some(creator => 
         creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny'
     );
+    
     const hasCorrectSymbol = asset.content?.metadata?.symbol === 'ROC';
     
-    // Method 3: Name contains "reap" variants
-    const nameContainsReap = asset.content?.metadata?.name?.toLowerCase().includes('reap');
-    
-    // Log assets that match any criteria for debugging
-    if (isFromCollection || (isVerifiedDRiP && hasCorrectSymbol) || nameContainsReap) {
-        console.log('Potential cReapZ:', {
-            name: asset.content?.metadata?.name,
-            symbol: asset.content?.metadata?.symbol,
-            isFromCollection,
-            isVerifiedDRiP,
-            hasCorrectSymbol,
-            nameContainsReap
-        });
-    }
-    
-    // Accept if any method matches
     return isFromCollection || (isVerifiedDRiP && hasCorrectSymbol);
 });
 
@@ -1217,6 +1224,8 @@ async getMyCollectionAssets(walletAddress) {
         }
     }
 }
+
+
 
 class CollectionManager {
 constructor() {
@@ -1887,12 +1896,13 @@ function toggleMenu() {
     // Show CNFT count if wallet is connected
     if (walletManager.isConnected && window.cnftHolderStatus) {
         menuContent += `
-            <div style="margin-bottom: 15px; padding: 10px; background: rgba(0, 255, 255, 0.1); border-radius: 5px;">
-                <div style="color: #00ffff; font-weight: bold;">CNFT Collection</div>
-                <div>Owned: ${window.cnftHolderStatus.cnftCount || 0} cReapZ</div>
-                <div style="font-size: 0.9em; color: #ccc;">Status: Verified Holder</div>
-            </div>
-        `;
+    <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 15px;">
+        <div style="padding: 8px 0; cursor: pointer;" onclick="refreshCNFTs()">🔄 Refresh CNFTs</div>
+        <div style="padding: 8px 0; cursor: pointer;" onclick="testCNFTDetection()">🔍 Test Detection</div>
+        <div style="padding: 8px 0; cursor: pointer;" onclick="openSettings()">⚙️ Settings</div>
+        <div style="padding: 8px 0; cursor: pointer;" onclick="openHelp()">❓ Help</div>
+    </div>
+`;
     } else if (walletManager.isConnected) {
         menuContent += `
             <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;">
@@ -1942,6 +1952,17 @@ function refreshCNFTs() {
     }
 }
 
+function testCNFTDetection() {
+    if (walletManager.isConnected && walletManager.wallet && walletManager.wallet.publicKey) {
+        console.log('=== Testing CNFT Detection ===');
+        console.log('Wallet:', walletManager.wallet.publicKey.toString());
+        console.log('Collection Address:', walletManager.collectionAddress);
+        walletManager.checkForCNFTs(walletManager.wallet.publicKey.toString());
+        document.getElementById('dropdown-menu')?.remove();
+    } else {
+        alert('Connect wallet first');
+    }
+}
 
 
 function openSettings() {
