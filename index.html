@@ -875,90 +875,144 @@ async connectWallet() {
 
     async checkForCNFTs(walletAddress) {
     try {
-        console.log('=== CNFT Detection via Helius DAS ===');
+        console.log('=== Tiered CNFT Verification ===');
         console.log('Checking wallet:', walletAddress);
         
         const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09';
         
-        let allAssets = [];
+        // Step 1: Quick check for ANY cReapZ (early termination)
+        let foundAny = false;
+        let allFoundCNFTs = [];
         let page = 1;
-        let hasMore = true;
+        const maxPages = 3; // Limit initial search to save credits
         
-        // Fetch all pages of assets
-        while (hasMore && page <= 10) { // Limit to 10 pages max for safety
-            console.log(`Fetching page ${page}...`);
+        while (!foundAny && page <= maxPages) {
+            console.log(`Quick scan page ${page} for any cReapZ...`);
             
             const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     jsonrpc: '2.0',
-                    id: `wallet-cnft-check-${page}`,
+                    id: `quick-check-${page}`,
                     method: 'getAssetsByOwner',
                     params: {
                         ownerAddress: walletAddress,
                         page: page,
-                        limit: 1000
+                        limit: 500
                     }
                 })
             });
 
-            if (!response.ok) {
-                throw new Error(`Helius API error: ${response.status}`);
-            }
-
             const data = await response.json();
-            const pageAssets = data.result?.items || [];
+            const assets = data.result?.items || [];
             
-            console.log(`Page ${page}: found ${pageAssets.length} assets`);
-            allAssets = allAssets.concat(pageAssets);
+            const cReapZOnPage = assets.filter(asset => {
+                const name = asset.content?.metadata?.name || '';
+                return name.toLowerCase().includes('creapz');
+            });
             
-            // If we got less than 1000, we've reached the end
-            hasMore = pageAssets.length === 1000;
+            if (cReapZOnPage.length > 0) {
+                foundAny = true;
+                allFoundCNFTs = cReapZOnPage;
+                console.log(`Found ${cReapZOnPage.length} cReapZ on page ${page}`);
+            }
+            
             page++;
         }
         
-        console.log(`Total assets across all pages: ${allAssets.length}`);
-
-        // Filter specifically for cReapZ by name
-        const cReapZAssets = allAssets.filter(asset => {
-            const name = asset.content?.metadata?.name || '';
-            return name.toLowerCase().includes('creapz');
-        });
-
-        console.log('=== cReapZ Assets Found ===');
-        console.log(`Found ${cReapZAssets.length} assets with "cReapZ" in name`);
-
-        cReapZAssets.forEach((asset, index) => {
-            console.log(`cReapZ ${index + 1}:`, {
-                name: asset.content?.metadata?.name,
-                symbol: asset.content?.metadata?.symbol,
-                collection: asset.grouping?.find(g => g.group_key === 'collection')?.group_value,
-                id: asset.id
-            });
-        });
-
-        // Use the name-filtered results
-        const ownedCNFTs = cReapZAssets;
-
-        console.log(`Found ${ownedCNFTs.length} cReapZ CNFTs from ${allAssets.length} total assets`);
+        if (!foundAny) {
+            console.log('No cReapZ found in quick scan');
+            this.updateCNFTStatus([]);
+            return [];
+        }
         
-        // Format the CNFTs for display
-        const formattedCNFTs = ownedCNFTs.map(cnft => ({
-            mint: cnft.id,
-            name: cnft.content?.metadata?.name || 'cReapZ CNFT',
-            symbol: cnft.content?.metadata?.symbol || 'ROC',
-            image: cnft.content?.links?.image || cnft.content?.metadata?.image
-        }));
-
-        this.updateCNFTStatus(formattedCNFTs);
-        return formattedCNFTs;
+        // Step 2: Analyze rarities of found cReapZ
+        const holderTier = this.analyzeHolderTier(allFoundCNFTs);
+        console.log('Holder tier analysis:', holderTier);
+        
+        // Step 3: Update status with tier information
+        this.updateTieredCNFTStatus(allFoundCNFTs, holderTier);
+        
+        return allFoundCNFTs;
         
     } catch (error) {
         console.error('CNFT verification failed:', error);
         this.updateCNFTStatus([]);
         return [];
     }
+}
+
+analyzeHolderTier(cnfts) {
+    const rarities = cnfts.map(cnft => {
+        // Extract rarity from attributes or name pattern
+        const attributes = cnft.content?.metadata?.attributes || [];
+        const rarityAttr = attributes.find(attr => 
+            attr.trait_type === 'Rarity' || attr.trait_type === 'rarity'
+        );
+        return rarityAttr?.value || 'Common';
+    });
+    
+    const hasEternal = rarities.some(r => r.toLowerCase().includes('eternal'));
+    const hasUltimate = rarities.some(r => r.toLowerCase().includes('ultimate'));
+    const hasLegendary = rarities.some(r => r.toLowerCase().includes('legendary'));
+    
+    if (hasEternal) return { tier: 'Eternal', level: 4, multiplier: 2.0 };
+    if (hasUltimate) return { tier: 'Ultimate', level: 3, multiplier: 1.5 };
+    if (hasLegendary) return { tier: 'Legendary', level: 2, multiplier: 1.25 };
+    return { tier: 'Holder', level: 1, multiplier: 1.1 };
+}
+
+updateTieredCNFTStatus(cnfts, holderTier) {
+    this.removeCNFTStatus();
+    
+    const holderStatus = document.createElement('div');
+    holderStatus.id = 'holder-status';
+    holderStatus.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: rgba(0, 255, 255, 0.1);
+        border: 2px solid #00ffff;
+        border-radius: 10px;
+        padding: 15px;
+        color: white;
+        font-family: 'Chiller', cursive;
+        z-index: 1000;
+        max-width: 300px;
+        backdrop-filter: blur(10px);
+    `;
+    
+    const tierColors = {
+        'Eternal': '#888888',
+        'Ultimate': '#ff44aa', 
+        'Legendary': '#00ff88',
+        'Holder': '#00ffff'
+    };
+    
+    holderStatus.innerHTML = `
+        <div style="color: ${tierColors[holderTier.tier]}; font-weight: bold; margin-bottom: 10px;">
+            ${holderTier.tier} Status Verified!
+        </div>
+        <div>cReapZ Found: ${cnfts.length}</div>
+        <div style="margin-top: 10px; font-size: 0.9em;">
+            • SoulZ Multiplier: ${holderTier.multiplier}x<br>
+            • Tier Level: ${holderTier.level}<br>
+            • Exclusive ${holderTier.tier} benefits
+        </div>
+    `;
+    
+    document.body.appendChild(holderStatus);
+    
+    // Apply benefits
+    window.cnftHolderStatus = {
+        isHolder: true,
+        cnftCount: cnfts.length,
+        tier: holderTier.tier,
+        level: holderTier.level,
+        soulzMultiplier: holderTier.multiplier,
+        discountRate: 0.1 + (holderTier.level * 0.05) // Higher tiers get better discounts
+    };
 }
 
 async getAllWalletAssets(walletAddress) {
