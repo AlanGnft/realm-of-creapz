@@ -905,22 +905,46 @@ async connectWallet() {
         
         console.log(`Found ${allAssets.length} total assets for wallet`);
         
-        // Filter for your collection
-        const ownedCNFTs = allAssets.filter(asset => {
-            // Check if it's from your collection
-            const isFromCollection = asset.grouping?.some(group => 
-                group.group_key === 'collection' && 
-                group.group_value === this.collectionAddress
-            );
-            
-            // Also check by symbol or creator as fallback
-            const hasCorrectSymbol = asset.content?.metadata?.symbol === 'ROC';
-            const isFromDRiP = asset.creators?.some(creator => 
-                creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny'
-            );
-            
-            return isFromCollection || (hasCorrectSymbol && isFromDRiP);
+        // Debug: Log all assets to understand structure
+console.log('Sample asset structure:', allAssets[0]);
+
+// Filter for your collection with detailed logging
+const ownedCNFTs = allAssets.filter(asset => {
+    // Check collection grouping
+    const isFromCollection = asset.grouping?.some(group => 
+        group.group_key === 'collection' && 
+        group.group_value === this.collectionAddress
+    );
+    
+    // Check symbol
+    const hasCorrectSymbol = asset.content?.metadata?.symbol === 'ROC';
+    
+    // Check creator (DRiP platform)
+    const isFromDRiP = asset.creators?.some(creator => 
+        creator.address === 'DRiPPP2LytGjNZ5fVpdZS7Xi1oANSY3Df1gSxvUKpzny' && 
+        creator.verified === true
+    );
+    
+    // Check if name contains cReapZ variants
+    const nameMatch = asset.content?.metadata?.name?.toLowerCase().includes('reap');
+    
+    // Debug logging for each asset
+    if (hasCorrectSymbol || isFromDRiP || nameMatch || isFromCollection) {
+        console.log('Asset analysis:', {
+            name: asset.content?.metadata?.name,
+            symbol: asset.content?.metadata?.symbol,
+            isFromCollection,
+            hasCorrectSymbol,
+            isFromDRiP,
+            nameMatch,
+            grouping: asset.grouping,
+            creators: asset.creators
         });
+    }
+    
+    // Use broader criteria - any of these should qualify
+    return isFromCollection || hasCorrectSymbol || (isFromDRiP && nameMatch);
+});
 
         console.log(`Found ${ownedCNFTs.length} cReapZ CNFTs from ${allAssets.length} total assets`);
         
@@ -940,6 +964,28 @@ async connectWallet() {
         this.updateCNFTStatus([]);
         return [];
     }
+}
+
+async getAllWalletAssets(walletAddress) {
+    const HELIUS_API_KEY = 'dea872b0-8415-42b9-bc38-e955e1ba6f09';
+    
+    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'debug-all-assets',
+            method: 'getAssetsByOwner',
+            params: {
+                ownerAddress: walletAddress,
+                page: 1,
+                limit: 1000
+            }
+        })
+    });
+
+    const data = await response.json();
+    return data.result?.items || [];
 }
 
     async checkIfFromCollection(mintAddress) {
@@ -1864,6 +1910,25 @@ function refreshCNFTs() {
         document.getElementById('dropdown-menu')?.remove();
     } else {
         alert('Please connect your wallet first.');
+    }
+}
+
+function debugAllAssets() {
+    if (walletManager.isConnected && walletManager.wallet && walletManager.wallet.publicKey) {
+        console.log('=== DEBUG: Showing all wallet assets ===');
+        
+        walletManager.getAllWalletAssets(walletManager.wallet.publicKey.toString())
+            .then(assets => {
+                console.log(`Found ${assets.length} total assets`);
+                assets.forEach((asset, index) => {
+                    console.log(`Asset ${index + 1}:`, {
+                        name: asset.content?.metadata?.name,
+                        symbol: asset.content?.metadata?.symbol,
+                        creators: asset.creators,
+                        grouping: asset.grouping
+                    });
+                });
+            });
     }
 }
 
