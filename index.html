@@ -991,16 +991,16 @@ updateTieredCNFTStatus(cnfts, holderTier) {
     };
     
     holderStatus.innerHTML = `
-        <div style="color: ${tierColors[holderTier.tier]}; font-weight: bold; margin-bottom: 10px;">
-            ${holderTier.tier} Status Verified!
-        </div>
-        <div>cReapZ Found: ${cnfts.length}</div>
-        <div style="margin-top: 10px; font-size: 0.9em;">
-            • SoulZ Multiplier: ${holderTier.multiplier}x<br>
-            • Tier Level: ${holderTier.level}<br>
-            • Exclusive ${holderTier.tier} benefits
-        </div>
-    `;
+    <div style="color: ${tierColors[holderTier.tier]}; font-weight: bold; margin-bottom: 10px;">
+        ${holderTier.tier} Status Verified!
+    </div>
+    <div>cReapZ Collection Holder</div>
+    <div style="margin-top: 10px; font-size: 0.9em;">
+        • SoulZ Multiplier: ${holderTier.multiplier}x<br>
+        • Tier Level: ${holderTier.level}<br>
+        • Exclusive ${holderTier.tier} benefits
+    </div>
+`;
     
     document.body.appendChild(holderStatus);
     
@@ -1934,33 +1934,32 @@ function toggleMenu() {
 
     let menuContent = '<div style="font-size: 1.2rem; color: #00ffff; margin-bottom: 15px;">Menu</div>';
     
-    // Show CNFT count if wallet is connected
-    if (walletManager.isConnected && window.cnftHolderStatus) {
-        menuContent += `
+    // Show CNFT status if wallet is connected
+if (walletManager.isConnected && window.cnftHolderStatus) {
+    menuContent += `
+        <div style="margin-bottom: 15px; padding: 10px; background: rgba(0, 255, 255, 0.1); border-radius: 5px;">
+            <div style="color: #00ffff; font-weight: bold;">CNFT Collection</div>
+            <div>Status: ${window.cnftHolderStatus.tier || 'Verified'} Holder</div>
+            <div style="font-size: 0.9em; color: #ccc;">Level ${window.cnftHolderStatus.level || 1}</div>
+        </div>
+    `;
+} else if (walletManager.isConnected) {
+    menuContent += `
+        <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;">
+            <div>CNFT Collection</div>
+            <div style="color: #999;">No cReapZ found</div>
+        </div>
+    `;
+}
+
+// Add menu items
+menuContent += `
     <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 15px;">
         <div style="padding: 8px 0; cursor: pointer;" onclick="refreshCNFTs()">🔄 Refresh CNFTs</div>
-        <div style="padding: 8px 0; cursor: pointer;" onclick="testCNFTDetection()">🔍 Test Detection</div>
         <div style="padding: 8px 0; cursor: pointer;" onclick="openSettings()">⚙️ Settings</div>
         <div style="padding: 8px 0; cursor: pointer;" onclick="openHelp()">❓ Help</div>
     </div>
 `;
-    } else if (walletManager.isConnected) {
-        menuContent += `
-            <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;">
-                <div>CNFT Collection</div>
-                <div style="color: #999;">No cReapZ found</div>
-            </div>
-        `;
-    }
-
-    // Add menu items
-    menuContent += `
-        <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 15px;">
-            <div style="padding: 8px 0; cursor: pointer;" onclick="refreshCNFTs()">🔄 Refresh CNFTs</div>
-            <div style="padding: 8px 0; cursor: pointer;" onclick="openSettings()">⚙️ Settings</div>
-            <div style="padding: 8px 0; cursor: pointer;" onclick="openHelp()">❓ Help</div>
-        </div>
-    `;
 
     menu.innerHTML = menuContent;
     document.body.appendChild(menu);
@@ -1993,17 +1992,6 @@ function refreshCNFTs() {
     }
 }
 
-function testCNFTDetection() {
-    if (walletManager.isConnected && walletManager.wallet && walletManager.wallet.publicKey) {
-        console.log('=== Testing CNFT Detection ===');
-        console.log('Wallet:', walletManager.wallet.publicKey.toString());
-        console.log('Collection Address:', walletManager.collectionAddress);
-        walletManager.checkForCNFTs(walletManager.wallet.publicKey.toString());
-        document.getElementById('dropdown-menu')?.remove();
-    } else {
-        alert('Connect wallet first');
-    }
-}
 
 
 function openSettings() {
